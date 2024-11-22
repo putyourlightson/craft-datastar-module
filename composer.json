@@ -7,7 +7,7 @@
   "require": {
     "php": "^8.2",
     "craftcms/cms": "^5.0",
-    "putyourlightson/datastar-php": "1.0.3"
+    "starfederation/datastar-php": "dev-main"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
