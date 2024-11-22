@@ -1,7 +1,7 @@
 [![Stable Version](https://img.shields.io/packagist/v/putyourlightson/craft-datastar-module?label=stable)]((https://packagist.org/packages/putyourlightson/craft-datastar-module))
 [![Total Downloads](https://img.shields.io/packagist/dt/putyourlightson/craft-datastar-module)](https://packagist.org/packages/putyourlightson/craft-datastar-module)
 
-<p align="center"><img width="150" src="https://putyourlightson.com/assets/logos/datastar-icon.svg"></p>
+<p align="center"><img width="150" src="https://putyourlightson.com/assets/logos/datastar.svg"></p>
 
 # Datastar Module for Craft CMS
 
