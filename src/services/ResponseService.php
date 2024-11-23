@@ -11,6 +11,8 @@ use craft\helpers\Json;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\StoreModel;
+use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
+use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator as SSE;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -30,6 +32,8 @@ class ResponseService extends Component
 
     /**
      * Merges HTML fragments into the DOM.
+     *
+     * @used-by FragmentNode
      */
     public function mergeFragments(string $data, array $options = []): void
     {
@@ -61,13 +65,15 @@ class ResponseService extends Component
     /**
      * Removes signal paths from the store.
      */
-    public function removeSignals(array $paths): void
+    public function removeSignals(array $paths, array $options = []): void
     {
-        $this->callSse(fn(SSE $sse) => $sse->removeSignals($paths));
+        $this->callSse(fn(SSE $sse) => $sse->removeSignals($paths, $options));
     }
 
     /**
      * Executes JavaScript in the browser.
+     *
+     * @used-by ExecuteScriptNode
      */
     public function executeScript(string $script, array $options = []): void
     {
