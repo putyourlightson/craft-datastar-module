@@ -37,11 +37,10 @@ class ResponseService extends Component
      */
     public function mergeFragments(string $data, array $options = []): void
     {
-        // Merge and remove empty values
-        $options = array_filter(array_merge(
+        $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultFragmentOptions,
             $options
-        ));
+        );
 
         $this->callSse(fn(SSE $sse) => $sse->mergeFragments($data, $options));
     }
@@ -51,6 +50,11 @@ class ResponseService extends Component
      */
     public function removeFragments(string $selector, array $options = []): void
     {
+        $options = $this->mergeEventOptions(
+            Datastar::getInstance()->settings->defaultFragmentOptions,
+            $options
+        );
+
         $this->callSse(fn(SSE $sse) => $sse->removeFragments($selector, $options));
     }
 
@@ -59,7 +63,12 @@ class ResponseService extends Component
      */
     public function mergeSignals(array $signals, array $options = []): void
     {
-        $this->callSse(fn(SSE $sse) => $sse->mergeSignals(Json::encode($signals), $options));
+        $options = $this->mergeEventOptions(
+            Datastar::getInstance()->settings->defaultSignalOptions,
+            $options
+        );
+
+        $this->callSse(fn(SSE $sse) => $sse->mergeSignals($signals, $options));
     }
 
     /**
@@ -77,6 +86,11 @@ class ResponseService extends Component
      */
     public function executeScript(string $script, array $options = []): void
     {
+        $options = $this->mergeEventOptions(
+            Datastar::getInstance()->settings->defaultExecuteScriptOptions,
+            $options
+        );
+
         $this->callSse(fn(SSE $sse) => $sse->executeScript($script, $options));
     }
 
@@ -126,6 +140,23 @@ class ResponseService extends Component
         return [];
     }
 
+    /**
+     * Returns merged event options with null values removed.
+     */
+    private function mergeEventOptions(array ...$optionSets): array
+    {
+        $options = Datastar::getInstance()->settings->defaultEventOptions;
+
+        foreach ($optionSets as $optionSet) {
+            $options = array_merge($options, $optionSet);
+        }
+
+        return array_filter($options, fn($value) => $value !== null);
+    }
+
+    /**
+     * Calls a callable, passing in an SSE object and cleaning output buffers.
+     */
     private function callSse(callable $callable): void
     {
         // Clean and end all existing output buffers.
@@ -143,6 +174,9 @@ class ResponseService extends Component
         ob_start();
     }
 
+    /**
+     * Returns a validated config model.
+     */
     private function getConfigForResponse(string $config): ConfigModel
     {
         $data = Craft::$app->getSecurity()->validateData($config);
@@ -153,6 +187,9 @@ class ResponseService extends Component
         return new ConfigModel(Json::decodeIfJson($data));
     }
 
+    /**
+     * Renders a template, catching exceptions.
+     */
     private function renderTemplate(string $template, array $variables): void
     {
         if (!Craft::$app->getView()->doesTemplateExist($template)) {

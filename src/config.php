@@ -19,19 +19,44 @@
 
 return [
     '*' => [
-        // Whether to register the Datastar script on the front-end.
-        //'registerScript' => true,
+        /**
+         * Whether to register the Datastar script on the front-end.
+         */
+        'registerScript' => true,
 
-        // The name of the store variable that will be injected into Datastar templates.
-        //'storeVariableName' => 'store',
+        /**
+         * The name of the store variable that will be injected into Datastar templates.
+         */
+        'storeVariableName' => 'store',
 
-        // The fragment options to override the Datastar defaults. Null values will be ignored.
-        // https://data-star.dev/reference/plugins_backend#datastar-fragment
-        //'defaultFragmentOptions' => [
-        //    'selector' => null,
-        //    'mergeMode' => null,
-        //    'settleDuration' => null,
-        //    'useViewTransition' => null,
-        //],
+        /**
+         * The event options to override the Datastar defaults. Null values will be ignored.
+         */
+        'defaultEventOptions' => [
+            'retryDuration' => null,
+        ],
+
+        /**
+         * The fragment options to override the Datastar defaults. Null values will be ignored.
+         */
+        'defaultFragmentOptions' => [
+            'settleDuration' => null,
+            'useViewTransition' => null,
+        ],
+
+        /**
+         * The signal options to override the Datastar defaults. Null values will be ignored.
+         */
+        'defaultSignalOptions' => [
+            'onlyIfMissing' => null,
+        ],
+
+        /**
+         * The execute script options to override the Datastar defaults. Null values will be ignored.
+         */
+        'defaultExecuteScriptOptions' => [
+            'autoRemove' => null,
+            'attributes' => null,
+        ],
     ],
 ];

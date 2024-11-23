@@ -23,12 +23,7 @@ use yii\base\Module;
 class Datastar extends Module
 {
     /**
-     * The version of the Datastar framework.
-     */
-    public const DATASTAR_VERSION = '0.20.0';
-
-    /**
-     * The ID of the module.
+     * The module ID.
      */
     public const ID = 'datastar-module';
 

@@ -3,14 +3,14 @@
 namespace putyourlightson\datastar\assets;
 
 use craft\web\AssetBundle;
-use putyourlightson\datastar\Datastar;
+use starfederation\datastar\Consts;
 
 class DatastarAssetBundle extends AssetBundle
 {
     /**
      * @inheritdoc
      */
-    public $sourcePath = __DIR__ . '/../resources/lib/datastar/' . Datastar::DATASTAR_VERSION;
+    public $sourcePath = __DIR__ . '/../resources/lib/datastar/' . Consts::VERSION;
 
     /**
      * @inheritdoc

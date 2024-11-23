@@ -20,14 +20,32 @@ class SettingsModel extends Model
     public string $storeVariableName = 'store';
 
     /**
+     * The event options to override the Datastar defaults. Null values will be ignored.
+     */
+    public array $defaultEventOptions = [
+        'retryDuration' => null,
+    ];
+
+    /**
      * The fragment options to override the Datastar defaults. Null values will be ignored.
-     * https://data-star.dev/reference/plugins_backend#datastar-fragment
-     *
      */
     public array $defaultFragmentOptions = [
-        'selector' => null,
-        'merge' => null,
-        'settle' => null,
-        'vt' => null,
+        'settleDuration' => null,
+        'useViewTransition' => null,
+    ];
+
+    /**
+     * The signal options to override the Datastar defaults. Null values will be ignored.
+     */
+    public array $defaultSignalOptions = [
+        'onlyIfMissing' => null,
+    ];
+
+    /**
+     * The execute script options to override the Datastar defaults. Null values will be ignored.
+     */
+    public array $defaultExecuteScriptOptions = [
+        'autoRemove' => null,
+        'attributes' => null,
     ];
 }
