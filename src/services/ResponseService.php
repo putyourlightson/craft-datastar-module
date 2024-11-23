@@ -11,7 +11,7 @@ use craft\helpers\Json;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\StoreModel;
-use starfederation\datastar\ServerSentEventGenerator;
+use starfederation\datastar\ServerSentEventGenerator as SSE;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -21,7 +21,7 @@ class ResponseService extends Component
     /**
      * The server sent event generator.
      */
-    private ServerSentEventGenerator|null $sse = null;
+    private SSE|null $sse = null;
 
     /**
      * The CSRF token to include in the request.
@@ -39,7 +39,7 @@ class ResponseService extends Component
             $options
         ));
 
-        $this->getSse()->mergeFragments($data, $options);
+        $this->callSse(fn(SSE $sse) => $sse->mergeFragments($data, $options));
     }
 
     /**
@@ -47,7 +47,7 @@ class ResponseService extends Component
      */
     public function removeFragments(string $selector, array $options = []): void
     {
-        $this->getSse()->removeFragments($selector, $options);
+        $this->callSse(fn(SSE $sse) => $sse->removeFragments($selector, $options));
     }
 
     /**
@@ -55,7 +55,7 @@ class ResponseService extends Component
      */
     public function mergeSignals(array $signals, array $options = []): void
     {
-        $this->getSse()->mergeSignals(Json::encode($signals), $options);
+        $this->callSse(fn(SSE $sse) => $sse->mergeSignals(Json::encode($signals), $options));
     }
 
     /**
@@ -63,7 +63,7 @@ class ResponseService extends Component
      */
     public function removeSignals(array $paths): void
     {
-        $this->getSse()->removeSignals($paths);
+        $this->callSse(fn(SSE $sse) => $sse->removeSignals($paths));
     }
 
     /**
@@ -71,7 +71,7 @@ class ResponseService extends Component
      */
     public function executeScript(string $script, array $options = []): void
     {
-        $this->getSse()->executeScript($script, $options);
+        $this->callSse(fn(SSE $sse) => $sse->executeScript($script, $options));
     }
 
     /**
@@ -120,13 +120,21 @@ class ResponseService extends Component
         return [];
     }
 
-    private function getSse(): ServerSentEventGenerator
+    private function callSse(callable $callable): void
     {
-        if ($this->sse === null) {
-            $this->sse = new ServerSentEventGenerator();
+        // Clean and end all existing output buffers.
+        while (ob_get_level() > 0) {
+            ob_end_clean();
         }
 
-        return $this->sse;
+        if ($this->sse === null) {
+            $this->sse = new SSE();
+        }
+
+        $callable($this->sse);
+
+        // Start a new output buffer to capture any subsequent inline content.
+        ob_start();
     }
 
     private function getConfigForResponse(string $config): ConfigModel
@@ -139,14 +147,14 @@ class ResponseService extends Component
         return new ConfigModel(Json::decodeIfJson($data));
     }
 
-    private function renderTemplate(string $template, array $variables): string
+    private function renderTemplate(string $template, array $variables): void
     {
         if (!Craft::$app->getView()->doesTemplateExist($template)) {
             $this->throwException('Template `' . $template . '` does not exist.');
         }
 
         try {
-            return Craft::$app->getView()->renderTemplate($template, $variables);
+            Craft::$app->getView()->renderTemplate($template, $variables);
         } catch (Throwable $exception) {
             $this->throwException($exception);
         }

@@ -5,7 +5,7 @@
 
 namespace putyourlightson\datastar\twigextensions\tokenparsers;
 
-use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
+use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
@@ -16,13 +16,13 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
      */
     public function getTag(): string
     {
-        return 'executeScript';
+        return 'executescript';
     }
 
     /**
      * @inheritdoc
      */
-    public function parse(Token $token): FragmentNode
+    public function parse(Token $token): ExecuteScriptNode
     {
         $lineno = $token->getLine();
         $parser = $this->parser;
@@ -38,19 +38,19 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $nodes['body'] = $parser->subparse([$this, 'decideFragmentEnd'], true);
+        $nodes['body'] = $parser->subparse([$this, 'decideExecuteScriptEnd'], true);
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new FragmentNode($nodes, [], $lineno, $this->getTag());
+        return new ExecuteScriptNode($nodes, [], $lineno, $this->getTag());
     }
 
     /**
      * @param Token $token
      * @return bool
      */
-    public function decideFragmentEnd(Token $token): bool
+    public function decideExecuteScriptEnd(Token $token): bool
     {
-        return $token->test('endfragment');
+        return $token->test('endexecutescript');
     }
 }

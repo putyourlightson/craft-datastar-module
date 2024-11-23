@@ -16,7 +16,6 @@ trait NodeTrait
 
         $compiler
             ->addDebugInfo($this)
-            ->write("while (ob_get_level() > 0) ob_end_clean();\n")
             ->write("ob_start();\n")
             ->subcompile($this->getNode('body'))
             ->write("\$content = ob_get_clean();\n")
