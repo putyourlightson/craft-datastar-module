@@ -8,7 +8,7 @@ namespace putyourlightson\datastar\twigextensions\nodes;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-class FragmentNode extends Node
+class ExecuteScriptNode extends Node
 {
     use NodeTrait;
 
@@ -17,6 +17,6 @@ class FragmentNode extends Node
      */
     public function compile(Compiler $compiler): void
     {
-        $this->compileMethod($compiler, 'mergeFragments');
+        $this->compileMethod($compiler, 'executeScript');
     }
 }

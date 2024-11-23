@@ -12,7 +12,7 @@ First require the package in your plugin/module’s `composer.json` file.
 ```json
 {
   "require": {
-    "putyourlightson/craft-datastar-module": "^1.0.0-alpha.1"
+    "putyourlightson/craft-datastar-module": "^1.0.0-alpha.2"
   }
 }
 ```
@@ -37,7 +37,7 @@ class MyPlugin extends Plugin
 Then use the Datastar function and tags as normal in your control panel templates.
 
 ```twig
-<button data-on-click="{{ datastar('_datastar/search') }}">Search</button>
+<button data-on-click="{{ datastar.get('_datastar/search') }}">Search</button>
 ```
 
 Datastar plugin issues should be reported to https://github.com/putyourlightson/craft-datastar/issues
@@ -61,7 +61,7 @@ This plugin requires [Craft CMS](https://craftcms.com/) 5.0.0 or later.
 Install this package via composer.
 
 ```shell
-composer require putyourlightson/craft-datastar-module:^1.0.0-alpha.1
+composer require putyourlightson/craft-datastar-module:^1.0.0-alpha.2
 ```
 
 ---

@@ -56,7 +56,7 @@ class StoreModel
     {
         $this->setNestedValue($name, $value);
 
-        Datastar::getInstance()->events->store($this->getNestedArrayValue($name, $value));
+        Datastar::getInstance()->response->mergeSignals($this->getNestedArrayValue($name, $value));
 
         return $this;
     }
@@ -70,7 +70,7 @@ class StoreModel
             $this->values[$name] = $value;
         }
 
-        Datastar::getInstance()->events->store($values);
+        Datastar::getInstance()->response->mergeSignals($values);
 
         return $this;
     }
@@ -82,7 +82,7 @@ class StoreModel
     {
         $this->removeNestedValue($name);
 
-        Datastar::getInstance()->events->store($this->getNestedArrayValue($name, null));
+        Datastar::getInstance()->response->removeSignals([$name]);
 
         return $this;
     }

@@ -26,7 +26,7 @@ class DatastarFunctions
         $method = self::getValidMethod($method);
         $url = self::datastarUrl($template, $variables, $method);
 
-        return "$$$method('$url')";
+        return "$$method('$url')";
     }
 
     /**

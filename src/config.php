@@ -29,9 +29,9 @@ return [
         // https://data-star.dev/reference/plugins_backend#datastar-fragment
         //'defaultFragmentOptions' => [
         //    'selector' => null,
-        //    'merge' => null,
-        //    'settle' => null,
-        //    'vt' => null,
+        //    'mergeMode' => null,
+        //    'settleDuration' => null,
+        //    'useViewTransition' => null,
         //],
     ],
 ];

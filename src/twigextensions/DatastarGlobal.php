@@ -6,40 +6,55 @@
 namespace putyourlightson\datastar\twigextensions;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\models\ConsoleModel;
 use yii\web\Response;
 
 class DatastarGlobal
 {
+    /**
+     * Merges HTML fragments into the DOM.
+     */
+    public function mergeFragments(string $data, array $options = []): void
+    {
+        Datastar::getInstance()->response->mergeFragments($data, $options);
+    }
+
+    /**
+     * Removes HTML fragments from the DOM.
+     */
+    public function removeFragments(string $selector, array $options = []): void
+    {
+        Datastar::getInstance()->response->removeFragments($selector, $options);
+    }
+
+    /**
+     * Merges signals into the store.
+     */
+    public function mergeSignals(array $signals, array $options = []): void
+    {
+        Datastar::getInstance()->response->mergeSignals($signals, $options);
+    }
+
+    /**
+     * Removes signal paths from the store.
+     */
+    public function removeSignals(array $paths): void
+    {
+        Datastar::getInstance()->response->removeSignals($paths);
+    }
+
+    /**
+     * Executes JavaScript in the browser.
+     */
+    public function executeScript(string $script, array $options = []): void
+    {
+        Datastar::getInstance()->response->executeScript($script, $options);
+    }
+
     /**
      * Runs an action and returns the response.
      */
     public function runAction(string $route, array $params = []): Response
     {
         return Datastar::getInstance()->response->runAction($route, $params);
-    }
-
-    /**
-     * Removes all elements that match the selector from the DOM.
-     */
-    public function remove(string $selector): void
-    {
-        Datastar::getInstance()->events->remove($selector);
-    }
-
-    /**
-     * Redirects the page to the provided URI.
-     */
-    public function redirect(string $uri): void
-    {
-        Datastar::getInstance()->events->redirect($uri);
-    }
-
-    /**
-     * Returns a console variable for logging messages to the browser console.
-     */
-    public function console(): ConsoleModel
-    {
-        return new ConsoleModel();
     }
 }

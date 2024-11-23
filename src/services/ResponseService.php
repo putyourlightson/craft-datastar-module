@@ -11,6 +11,7 @@ use craft\helpers\Json;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\StoreModel;
+use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -18,33 +19,59 @@ use yii\web\Response;
 class ResponseService extends Component
 {
     /**
-     * @var string|null The CSRF token to include in the response.
+     * The server sent event generator.
+     */
+    private ServerSentEventGenerator|null $sse = null;
+
+    /**
+     * The CSRF token to include in the request.
      */
     private ?string $csrfToken = null;
 
     /**
-     * Streams the response and returns an empty array.
+     * Merges HTML fragments into the DOM.
      */
-    public function stream(string $config, array $store): array
+    public function mergeFragments(string $data, array $options = []): void
     {
-        $config = $this->getConfigForResponse($config);
-        Craft::$app->getSites()->setCurrentSite($config->siteId);
-        $this->csrfToken = $config->csrfToken;
+        // Merge and remove empty values
+        $options = array_filter(array_merge(
+            Datastar::getInstance()->settings->defaultFragmentOptions,
+            $options
+        ));
 
-        $store = new StoreModel($store);
-        $variables = array_merge(
-            [Datastar::getInstance()->settings->storeVariableName => $store],
-            $config->variables,
-        );
+        $this->getSse()->mergeFragments($data, $options);
+    }
 
-        $content = $this->renderTemplate($config->template, $variables);
+    /**
+     * Removes HTML fragments from the DOM.
+     */
+    public function removeFragments(string $selector, array $options = []): void
+    {
+        $this->getSse()->removeFragments($selector, $options);
+    }
 
-        // Output any rendered content in a fragment event.
-        if (!empty($content)) {
-            Datastar::getInstance()->events->fragment($content);
-        }
+    /**
+     * Merges signals into the store.
+     */
+    public function mergeSignals(array $signals, array $options = []): void
+    {
+        $this->getSse()->mergeSignals(Json::encode($signals), $options);
+    }
 
-        return [];
+    /**
+     * Removes signal paths from the store.
+     */
+    public function removeSignals(array $paths): void
+    {
+        $this->getSse()->removeSignals($paths);
+    }
+
+    /**
+     * Executes JavaScript in the browser.
+     */
+    public function executeScript(string $script, array $options = []): void
+    {
+        $this->getSse()->executeScript($script, $options);
     }
 
     /**
@@ -71,6 +98,35 @@ class ResponseService extends Component
         $request->setBodyParams([]);
 
         return $response;
+    }
+
+    /**
+     * Streams the response and returns an empty array.
+     */
+    public function stream(string $config, array $store): array
+    {
+        $config = $this->getConfigForResponse($config);
+        Craft::$app->getSites()->setCurrentSite($config->siteId);
+        $this->csrfToken = $config->csrfToken;
+
+        $store = new StoreModel($store);
+        $variables = array_merge(
+            [Datastar::getInstance()->settings->storeVariableName => $store],
+            $config->variables,
+        );
+
+        $this->renderTemplate($config->template, $variables);
+
+        return [];
+    }
+
+    private function getSse(): ServerSentEventGenerator
+    {
+        if ($this->sse === null) {
+            $this->sse = new ServerSentEventGenerator();
+        }
+
+        return $this->sse;
     }
 
     private function getConfigForResponse(string $config): ConfigModel

@@ -11,22 +11,30 @@ use nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
 use putyourlightson\datastar\models\StoreModel;
-use putyourlightson\datastar\services\EventsService;
 use putyourlightson\datastar\services\ResponseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use yii\base\Event;
 use yii\base\Module;
 
 /**
- * @property-read EventsService $events
  * @property-read ResponseService $response
  * @property-read SettingsModel $settings
  */
 class Datastar extends Module
 {
-    public const DATASTAR_VERSION = '0.19.9';
+    /**
+     * The version of the Datastar framework.
+     */
+    public const DATASTAR_VERSION = '0.20.0';
 
+    /**
+     * The ID of the module.
+     */
     public const ID = 'datastar-module';
+
+    /**
+     * The module settings.
+     */
     private ?SettingsModel $_settings = null;
 
     /**
@@ -80,7 +88,6 @@ class Datastar extends Module
     private function registerComponents(): void
     {
         $this->setComponents([
-            'events' => EventsService::class,
             'response' => ResponseService::class,
         ]);
     }
