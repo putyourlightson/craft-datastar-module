@@ -5,7 +5,7 @@
 
 # Datastar Module for Craft CMS
 
-This module provides the core functionality for the [Datastar plugin](https://github.com/putyourlightson/craft-datastar), a real-time, template-driven hypermedia framework for [Craft CMS](https://craftcms.com/). If you are developing a Craft plugin/module and would like to use Datastar in the control panel, you can require this package to give you its functionality, without requiring that the Datastar plugin is installed.
+This module provides the core functionality for the [Datastar plugin](https://github.com/putyourlightson/craft-datastar). If you are developing a Craft plugin/module and would like to use Datastar in the control panel, you can require this package to give you its functionality, without requiring that the Datastar plugin is installed.
 
 First require the package in your plugin/module’s `composer.json` file.
 
@@ -37,7 +37,7 @@ class MyPlugin extends Plugin
 Then use the Datastar function and tags as normal in your control panel templates.
 
 ```twig
-<button data-on-click="{{ datastar.get('_datastar/search') }}">Search</button>
+<button data-on-click="{{ datastar('_datastar/search') }}">Search</button>
 ```
 
 Datastar plugin issues should be reported to https://github.com/putyourlightson/craft-datastar/issues
