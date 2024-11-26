@@ -43,7 +43,7 @@ test('Test getting a missing value from the store', function() {
 test('Test getting a missing value from the store using a magic call', function() {
     $store = new StoreModel(['a' => 1]);
     expect($store->x)
-        ->toBe(1);
+        ->toBeNull();
 });
 
 test('Test adding a value to the store', function() {
