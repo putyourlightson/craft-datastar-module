@@ -6,9 +6,9 @@
 namespace putyourlightson\datastar\controllers;
 
 use Craft;
-use craft\helpers\Json;
 use craft\web\Controller;
 use putyourlightson\datastar\Datastar;
+use starfederation\datastar\ReadSignals;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -39,7 +39,7 @@ class DefaultController extends Controller
     public function actionIndex(): Response
     {
         $config = $this->request->getParam('config');
-        $store = $this->getStoreParams();
+        $store = ReadSignals::getStore();
 
         // Clear out params to prevent them from being processed controller actions.
         $this->request->setQueryParams([]);
@@ -62,19 +62,5 @@ class DefaultController extends Controller
         };
 
         return $this->response;
-    }
-
-    private function getStoreParams(): array
-    {
-        if ($this->request->getIsGet()) {
-            $param = $this->request->getParam('datastar', []);
-            if ($param === null) {
-                return [];
-            }
-
-            return Json::decodeIfJson($param);
-        }
-
-        return $this->request->getBodyParams();
     }
 }
