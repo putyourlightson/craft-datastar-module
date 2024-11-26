@@ -24,6 +24,5 @@ class DatastarAssetBundle extends AssetBundle
      */
     public $jsOptions = [
         'type' => 'module',
-        'defer' => true,
     ];
 }
