@@ -7,7 +7,7 @@ namespace putyourlightson\datastar\models;
 
 use putyourlightson\datastar\Datastar;
 
-class StoreModel
+class SignalsModel
 {
     private array $values;
 
@@ -22,7 +22,7 @@ class StoreModel
     }
 
     /**
-     * This exists so that `store.{name}` and `store.{name}({value})` will work in Twig.
+     * This exists so that `signals.{name}` and `signals.{name}({value})` will work in Twig.
      */
     public function __call(string $name, array $arguments)
     {
@@ -34,7 +34,7 @@ class StoreModel
     }
 
     /**
-     * Returns the value in the store.
+     * Returns the signal value.
      */
     public function get(string $name): mixed
     {
@@ -42,7 +42,7 @@ class StoreModel
     }
 
     /**
-     * Returns the values in the store.
+     * Returns the signal values.
      */
     public function getValues(): array
     {
@@ -50,7 +50,7 @@ class StoreModel
     }
 
     /**
-     * Sets a value in the store.
+     * Sets a signal value.
      */
     public function set(string $name, mixed $value): static
     {
@@ -62,7 +62,7 @@ class StoreModel
     }
 
     /**
-     * Sets multiple values in the store.
+     * Sets multiple signal values at once.
      */
     public function setValues(array $values): static
     {
@@ -76,7 +76,7 @@ class StoreModel
     }
 
     /**
-     * Removes a value from the store.
+     * Removes a signal.
      */
     public function remove(string $name): static
     {
@@ -105,7 +105,7 @@ class StoreModel
     }
 
     /**
-     * Sets a nested value in the store while supporting dot notation in the name.
+     * Sets a nested signal value while supporting dot notation in the name.
      */
     private function setNestedValue(string $name, mixed $value): void
     {
@@ -121,7 +121,7 @@ class StoreModel
     }
 
     /**
-     * Removes a nested value from the store while supporting dot notation in the name.
+     * Removes a nested signal value while supporting dot notation in the name.
      */
     private function removeNestedValue(string $name): void
     {

@@ -25,9 +25,9 @@ return [
         'registerScript' => true,
 
         /**
-         * The name of the store variable that will be injected into Datastar templates.
+         * The name of the signals variable that will be injected into Datastar templates.
          */
-        'storeVariableName' => 'store',
+        'signalsVariableName' => 'signals',
 
         /**
          * The event options to override the Datastar defaults. Null values will be ignored.

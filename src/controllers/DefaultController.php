@@ -39,7 +39,7 @@ class DefaultController extends Controller
     public function actionIndex(): Response
     {
         $config = $this->request->getParam('config');
-        $store = ReadSignals::getStore();
+        $signals = ReadSignals::getStore();
 
         // Clear out params to prevent them from being processed controller actions.
         $this->request->setQueryParams([]);
@@ -57,8 +57,8 @@ class DefaultController extends Controller
         $this->response->format = Response::FORMAT_RAW;
 
         // Stream the response.
-        $this->response->stream = function() use ($config, $store) {
-            return Datastar::getInstance()->response->stream($config, $store);
+        $this->response->stream = function() use ($config, $signals) {
+            return Datastar::getInstance()->response->stream($config, $signals);
         };
 
         return $this->response;

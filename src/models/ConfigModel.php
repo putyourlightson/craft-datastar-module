@@ -36,11 +36,11 @@ class ConfigModel extends Model
      */
     public function validateVariables(mixed $attribute): bool
     {
-        $storeVariableName = Datastar::getInstance()->settings->storeVariableName;
+        $signalsVariableName = Datastar::getInstance()->settings->signalsVariableName;
 
         foreach ($this->variables as $key => $value) {
-            if ($key === $storeVariableName) {
-                $this->addError($attribute, 'Variable `' . $storeVariableName . '` is reserved. Use a different name or modify the name of the store variable using the `storeVariableName` config setting.');
+            if ($key === $signalsVariableName) {
+                $this->addError($attribute, 'Variable `' . $signalsVariableName . '` is reserved. Use a different name or modify the name of the signals variable using the `signalsVariableName` config setting.');
 
                 return false;
             }

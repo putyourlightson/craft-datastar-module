@@ -10,7 +10,7 @@ use craft\base\Component;
 use craft\helpers\Json;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
-use putyourlightson\datastar\models\StoreModel;
+use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator as SSE;
@@ -59,7 +59,7 @@ class ResponseService extends Component
     }
 
     /**
-     * Merges signals into the store.
+     * Merges signals.
      */
     public function mergeSignals(array $signals, array $options = []): void
     {
@@ -72,7 +72,7 @@ class ResponseService extends Component
     }
 
     /**
-     * Removes signal paths from the store.
+     * Removes signal paths.
      */
     public function removeSignals(array $paths, array $options = []): void
     {
@@ -123,15 +123,15 @@ class ResponseService extends Component
     /**
      * Streams the response and returns an empty array.
      */
-    public function stream(string $config, array $store): array
+    public function stream(string $config, array $signals): array
     {
         $config = $this->getConfigForResponse($config);
         Craft::$app->getSites()->setCurrentSite($config->siteId);
         $this->csrfToken = $config->csrfToken;
 
-        $store = new StoreModel($store);
+        $signals = new SignalsModel($signals);
         $variables = array_merge(
-            [Datastar::getInstance()->settings->storeVariableName => $store],
+            [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $config->variables,
         );
 

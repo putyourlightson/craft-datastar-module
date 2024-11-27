@@ -10,7 +10,7 @@ use nystudio107\autocomplete\events\DefineGeneratorValuesEvent;
 use nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
-use putyourlightson\datastar\models\StoreModel;
+use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\services\ResponseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use yii\base\Event;
@@ -114,7 +114,7 @@ class Datastar extends Module
         Event::on(AutocompleteTwigExtensionGenerator::class,
             AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
             function(DefineGeneratorValuesEvent $event) {
-                $event->values[$this->settings->storeVariableName] = 'new \\' . StoreModel::class . '()';
+                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
             }
         );
     }

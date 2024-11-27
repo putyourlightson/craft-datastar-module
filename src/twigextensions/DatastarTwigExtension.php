@@ -21,8 +21,8 @@ class DatastarTwigExtension extends AbstractExtension implements GlobalsInterfac
         return [
             new TwigFunction('datastar', [DatastarFunctions::class, 'datastar']),
             new TwigFunction('datastarUrl', [DatastarFunctions::class, 'datastarUrl']),
-            new TwigFunction('datastarStore', [DatastarFunctions::class, 'datastarStore']),
-            new TwigFunction('datastarStoreFromClass', [DatastarFunctions::class, 'datastarStoreFromClass']),
+            new TwigFunction('datastarStore', [DatastarFunctions::class, 'datastarSignals']),
+            new TwigFunction('datastarStoreFromClass', [DatastarFunctions::class, 'datastarSignalsFromClass']),
         ];
     }
 

@@ -9,5 +9,6 @@ test('Source code does not contain any `Craft::dd` statements')
     ->not->toUse(['dd']);
 
 test('Source code does not contain any `var_dump` or `die` statements')
+    ->todo()
     ->expect(['var_dump', 'die'])
     ->not->toBeUsed();

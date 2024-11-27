@@ -51,19 +51,19 @@ class DatastarFunctions
     }
 
     /**
-     * Returns an array of values as a store.
+     * Returns an array of signal values.
      */
-    public static function datastarStore(array $values): string
+    public static function datastarSignals(array $values): string
     {
-        self::validateStoreValues($values);
+        self::validateSignals($values);
 
         return Json::encode($values);
     }
 
     /**
-     * Returns a class’s public properties as a store.
+     * Returns a class’s public properties as signals.
      */
-    public static function datastarStoreFromClass(string $class, array $values = []): string
+    public static function datastarSignalsFromClass(string $class, array $values = []): string
     {
         $classValues = self::getClassPropertyValues($class);
 
@@ -71,18 +71,18 @@ class DatastarFunctions
             $classValues[$key] = $value;
         }
 
-        return self::datastarStore($classValues);
+        return self::datastarSignals($classValues);
     }
 
-    private static function validateStoreValues(array $values): void
+    private static function validateSignals(array $values): void
     {
         foreach ($values as $value) {
             if (is_object($value)) {
-                throw new SyntaxError('Store values cannot contain objects.');
+                throw new SyntaxError('Signal values cannot contain objects.');
             }
 
             if (is_array($value)) {
-                self::validateStoreValues($value);
+                self::validateSignals($value);
             }
         }
     }

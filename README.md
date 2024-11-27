@@ -12,7 +12,7 @@ First require the package in your plugin/module’s `composer.json` file.
 ```json
 {
   "require": {
-    "putyourlightson/craft-datastar-module": "^1.0.0-alpha.2"
+    "putyourlightson/craft-datastar-module": "^1.0.0-alpha.4"
   }
 }
 ```
@@ -61,7 +61,7 @@ This plugin requires [Craft CMS](https://craftcms.com/) 5.0.0 or later.
 Install this package via composer.
 
 ```shell
-composer require putyourlightson/craft-datastar-module:^1.0.0-alpha.2
+composer require putyourlightson/craft-datastar-module:^1.0.0-alpha.4
 ```
 
 ---

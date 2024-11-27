@@ -27,7 +27,7 @@ class DatastarGlobal
     }
 
     /**
-     * Merges signals into the store.
+     * Merges signals.
      */
     public function mergeSignals(array $signals, array $options = []): void
     {
@@ -35,7 +35,7 @@ class DatastarGlobal
     }
 
     /**
-     * Removes signal paths from the store.
+     * Removes signal paths.
      */
     public function removeSignals(array $paths): void
     {
