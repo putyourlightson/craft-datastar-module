@@ -9,11 +9,11 @@
 
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\SignalsModel;
-use putyourlightson\datastar\services\ResponseService;
+use putyourlightson\datastar\services\SseService;
 
 beforeEach(function() {
-    $response = Mockery::mock(ResponseService::class);
-    Datastar::getInstance()->set('response', $response);
+    $sse = Mockery::mock(SseService::class);
+    Datastar::getInstance()->set('sse', $sse);
 });
 
 test('Test getting a signal value', function() {
@@ -47,7 +47,7 @@ test('Test getting a missing signal value using a magic call', function() {
 });
 
 test('Test adding a signal', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel([]);
     $signals->set('a', 1);
     expect($signals->get('a'))
@@ -55,7 +55,7 @@ test('Test adding a signal', function() {
 });
 
 test('Test adding a signal using a magic call', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel([]);
     $signals->a(1);
     expect($signals->get('a'))
@@ -63,7 +63,7 @@ test('Test adding a signal using a magic call', function() {
 });
 
 test('Test modifying an existing signal', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel(['a' => 1]);
     $signals->set('a', 2);
     expect($signals->get('a'))
@@ -71,7 +71,7 @@ test('Test modifying an existing signal', function() {
 });
 
 test('Test modifying an existing signal using a magic call', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel(['a' => 1]);
     $signals->a(2);
     expect($signals->get('a'))
@@ -79,7 +79,7 @@ test('Test modifying an existing signal using a magic call', function() {
 });
 
 test('Test adding a nested signal', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel([]);
     $signals->set('a.b.c', 1);
     expect($signals->get('a.b.c'))
@@ -87,7 +87,7 @@ test('Test adding a nested signal', function() {
 });
 
 test('Test modifying an existing nested signal', function() {
-    Datastar::getInstance()->response->shouldReceive('mergeSignals');
+    Datastar::getInstance()->sse->shouldReceive('mergeSignals');
     $signals = new SignalsModel(['a' => ['b' => ['c' => 1]]]);
     $signals->set('a.b.c', 2);
     expect($signals->get('a.b.c'))
@@ -95,7 +95,7 @@ test('Test modifying an existing nested signal', function() {
 });
 
 test('Test removing a signal value', function() {
-    Datastar::getInstance()->response->shouldReceive('removeSignals');
+    Datastar::getInstance()->sse->shouldReceive('removeSignals');
     $signals = new SignalsModel(['a' => 1]);
     $signals->remove('a');
     expect($signals->getValues())
@@ -103,7 +103,7 @@ test('Test removing a signal value', function() {
 });
 
 test('Test removing a nested signal value', function() {
-    Datastar::getInstance()->response->shouldReceive('removeSignals');
+    Datastar::getInstance()->sse->shouldReceive('removeSignals');
     $signals = new SignalsModel(['a' => ['b' => ['c' => 1]]]);
     $signals->remove('a.b.c');
     expect($signals->getValues())

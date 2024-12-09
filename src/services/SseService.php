@@ -8,6 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\SignalsModel;
@@ -15,10 +16,11 @@ use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator as SSE;
 use Throwable;
+use Twig\Error\SyntaxError;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
-class ResponseService extends Component
+class SseService extends Component
 {
     /**
      * The server sent event generator.
@@ -29,6 +31,27 @@ class ResponseService extends Component
      * The CSRF token to include in the request.
      */
     private ?string $csrfToken = null;
+
+    /**
+     * Returns a Datastar URL endpoint.
+     */
+    public function getUrl(string $template, array $variables = [], string $method = 'get'): string
+    {
+        $config = new ConfigModel([
+            'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
+            'template' => $template,
+            'variables' => $variables,
+            'method' => $method,
+        ]);
+
+        if (!$config->validate()) {
+            throw new SyntaxError(implode(' ', $config->getFirstErrors()));
+        }
+
+        return UrlHelper::actionUrl('datastar-module', [
+            'config' => $config->getHashed(),
+        ]);
+    }
 
     /**
      * Merges HTML fragments into the DOM.

@@ -10,7 +10,7 @@ use Twig\Compiler;
 
 trait NodeTrait
 {
-    public function compileMethod(Compiler $compiler, string $method): void
+    public function compileWithOptions(Compiler $compiler, string $method): void
     {
         $options = $this->hasNode('options') ? $this->getNode('options') : null;
 
@@ -29,6 +29,6 @@ trait NodeTrait
 
         $compiler
             ->raw(";\n")
-            ->write(Datastar::class . "::getInstance()->response->$method(\$content, \$options);\n");
+            ->write(Datastar::class . "::getInstance()->sse->$method(\$content, \$options);\n");
     }
 }

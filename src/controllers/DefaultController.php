@@ -58,7 +58,7 @@ class DefaultController extends Controller
 
         // Stream the response.
         $this->response->stream = function() use ($config, $signals) {
-            return Datastar::getInstance()->response->stream($config, $signals);
+            return Datastar::getInstance()->sse->stream($config, $signals);
         };
 
         return $this->response;

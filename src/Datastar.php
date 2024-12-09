@@ -11,13 +11,13 @@ use nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
 use putyourlightson\datastar\models\SignalsModel;
-use putyourlightson\datastar\services\ResponseService;
+use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use yii\base\Event;
 use yii\base\Module;
 
 /**
- * @property-read ResponseService $response
+ * @property-read SseService $sse
  * @property-read SettingsModel $settings
  */
 class Datastar extends Module
@@ -83,7 +83,7 @@ class Datastar extends Module
     private function registerComponents(): void
     {
         $this->setComponents([
-            'response' => ResponseService::class,
+            'sse' => SseService::class,
         ]);
     }
 

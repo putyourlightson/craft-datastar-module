@@ -11,17 +11,6 @@ _Tests the architecture of the plugin._
 
 ## Feature Tests
 
-### [Functions](tests/Feature/FunctionsTest.php)
-
-_Tests the Datastar functions._
-
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing a reserved variable name throws an exception.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing an object variable throws an exception.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test creating signals.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test creating nested signals.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating signals containing an object throws an exception.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating nested signals containing an object throws an exception.  
-
 ### [Signals](tests/Feature/SignalsTest.php)
 
 _Tests the signals model._
@@ -39,3 +28,10 @@ _Tests the signals model._
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test modifying an existing nested signal.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test removing a signal value.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test removing a nested signal value.  
+
+### [Variable](tests/Feature/VariableTest.php)
+
+_Tests the Datastar functions._
+
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing a reserved variable name throws an exception.  
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing an object variable throws an exception.  

@@ -56,7 +56,7 @@ class SignalsModel
     {
         $this->setNestedValue($name, $value);
 
-        Datastar::getInstance()->response->mergeSignals($this->getNestedArrayValue($name, $value));
+        Datastar::getInstance()->sse->mergeSignals($this->getNestedArrayValue($name, $value));
 
         return $this;
     }
@@ -70,7 +70,7 @@ class SignalsModel
             $this->values[$name] = $value;
         }
 
-        Datastar::getInstance()->response->mergeSignals($values);
+        Datastar::getInstance()->sse->mergeSignals($values);
 
         return $this;
     }
@@ -82,7 +82,7 @@ class SignalsModel
     {
         $this->removeNestedValue($name);
 
-        Datastar::getInstance()->response->removeSignals([$name]);
+        Datastar::getInstance()->sse->removeSignals([$name]);
 
         return $this;
     }

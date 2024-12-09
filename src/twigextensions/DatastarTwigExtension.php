@@ -7,32 +7,19 @@ namespace putyourlightson\datastar\twigextensions;
 
 use putyourlightson\datastar\twigextensions\tokenparsers\ExecuteScriptTokenParser;
 use putyourlightson\datastar\twigextensions\tokenparsers\FragmentTokenParser;
+use putyourlightson\datastar\variables\DatastarVariable;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
-use Twig\TwigFunction;
 
 class DatastarTwigExtension extends AbstractExtension implements GlobalsInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getFunctions(): array
-    {
-        return [
-            new TwigFunction('datastar', [DatastarFunctions::class, 'datastar']),
-            new TwigFunction('datastarUrl', [DatastarFunctions::class, 'datastarUrl']),
-            new TwigFunction('datastarStore', [DatastarFunctions::class, 'datastarSignals']),
-            new TwigFunction('datastarStoreFromClass', [DatastarFunctions::class, 'datastarSignalsFromClass']),
-        ];
-    }
-
     /**
      * @inerhitdoc
      */
     public function getGlobals(): array
     {
         return [
-            'datastar' => new DatastarGlobal(),
+            'datastar' => new DatastarVariable(),
         ];
     }
 
