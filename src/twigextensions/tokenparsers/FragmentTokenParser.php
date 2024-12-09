@@ -12,7 +12,7 @@ use Twig\TokenParser\AbstractTokenParser;
 class FragmentTokenParser extends AbstractTokenParser
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTag(): string
     {
@@ -49,10 +49,6 @@ class FragmentTokenParser extends AbstractTokenParser
         return new FragmentNode($nodes, [], $lineno, $this->getTag());
     }
 
-    /**
-     * @param Token $token
-     * @return bool
-     */
     public function decideFragmentEnd(Token $token): bool
     {
         return $token->test('endfragment');

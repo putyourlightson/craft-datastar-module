@@ -12,7 +12,7 @@ use Twig\TokenParser\AbstractTokenParser;
 class ExecuteScriptTokenParser extends AbstractTokenParser
 {
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTag(): string
     {
@@ -45,10 +45,6 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
         return new ExecuteScriptNode($nodes, [], $lineno, $this->getTag());
     }
 
-    /**
-     * @param Token $token
-     * @return bool
-     */
     public function decideExecuteScriptEnd(Token $token): bool
     {
         return $token->test('endexecutescript');

@@ -23,11 +23,9 @@ class FragmentNode extends Node
 
         if ($selector !== null) {
             $this->removeFragments($compiler, $selector);
-
-            return;
+        } else {
+            $this->compileWithOptions($compiler, 'mergeFragments');
         }
-
-        $this->compileWithOptions($compiler, 'mergeFragments');
     }
 
     /**

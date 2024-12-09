@@ -10,6 +10,9 @@ use Twig\Compiler;
 
 trait NodeTrait
 {
+    /**
+     * Compiles a node with options.
+     */
     public function compileWithOptions(Compiler $compiler, string $method): void
     {
         $options = $this->hasNode('options') ? $this->getNode('options') : null;
