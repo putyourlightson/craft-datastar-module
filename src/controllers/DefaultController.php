@@ -8,7 +8,7 @@ namespace putyourlightson\datastar\controllers;
 use Craft;
 use craft\web\Controller;
 use putyourlightson\datastar\Datastar;
-use starfederation\datastar\ReadSignals;
+use starfederation\datastar\ServerSentEventGenerator;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -39,7 +39,7 @@ class DefaultController extends Controller
     public function actionIndex(): Response
     {
         $config = $this->request->getParam('config');
-        $signals = ReadSignals::getStore();
+        $signals = ServerSentEventGenerator::readSignals();
 
         // Clear out params to prevent them from being processed controller actions.
         $this->request->setQueryParams([]);
