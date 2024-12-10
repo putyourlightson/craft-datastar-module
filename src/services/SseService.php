@@ -35,13 +35,17 @@ class SseService extends Component
     /**
      * Returns a Datastar URL endpoint.
      */
-    public function getUrl(string $template, array $variables = [], string $method = 'get'): string
+    public function getUrl(string $template, array $options = []): string
     {
+        $variables = $options['variables'] ?? [];
+        $method = $options['method'] ?? 'get';
+        $includeCsrfToken = strtolower($method) !== 'get';
+
         $config = new ConfigModel([
             'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
             'template' => $template,
             'variables' => $variables,
-            'method' => $method,
+            'includeCsrfToken' => $includeCsrfToken,
         ]);
 
         if (!$config->validate()) {
