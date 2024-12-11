@@ -15,8 +15,12 @@ class DatastarVariable
      */
     public function sse(string $template, array $options = []): string
     {
-        $url = Datastar::getInstance()->sse->getUrl($template, $options);
+        $variables = $options['variables'] ?? [];
         unset($options['variables']);
+        $method = $options['method'] ?? 'get';
+        $includeCsrfToken = strtolower($method) !== 'get';
+
+        $url = Datastar::getInstance()->sse->getUrl($template, $variables, $includeCsrfToken);
 
         $args = ["'$url'"];
         if (!empty($options)) {
@@ -24,14 +28,6 @@ class DatastarVariable
         }
 
         return 'sse(' . implode(', ', $args) . ')';
-    }
-
-    /**
-     * Returns a Datastar URL endpoint.
-     */
-    public function getUrl(string $template, array $options = []): string
-    {
-        return Datastar::getInstance()->sse->getUrl($template, $options);
     }
 
     /**
