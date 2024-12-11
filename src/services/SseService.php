@@ -14,7 +14,7 @@ use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
-use starfederation\datastar\ServerSentEventGenerator as SSE;
+use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use Twig\Error\SyntaxError;
 use yii\web\BadRequestHttpException;
@@ -25,7 +25,12 @@ class SseService extends Component
     /**
      * The server sent event generator.
      */
-    private SSE|null $sse = null;
+    private ServerSentEventGenerator|null $sse = null;
+
+    /**
+     * The server sent event method currently in process.
+     */
+    private ?string $sseMethodInProcess = null;
 
     /**
      * The CSRF token to include in the request.
@@ -62,10 +67,10 @@ class SseService extends Component
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultFragmentOptions,
-            $options
+            $options,
         );
 
-        $this->callSse(fn(SSE $sse) => $sse->mergeFragments($data, $options));
+        $this->callSse('mergeFragments', $data, $options);
     }
 
     /**
@@ -75,10 +80,10 @@ class SseService extends Component
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultFragmentOptions,
-            $options
+            $options,
         );
 
-        $this->callSse(fn(SSE $sse) => $sse->removeFragments($selector, $options));
+        $this->callSse('removeFragments', $selector, $options);
     }
 
     /**
@@ -88,10 +93,10 @@ class SseService extends Component
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
-            $options
+            $options,
         );
 
-        $this->callSse(fn(SSE $sse) => $sse->mergeSignals($signals, $options));
+        $this->callSse('mergeSignals', $signals, $options);
     }
 
     /**
@@ -99,7 +104,7 @@ class SseService extends Component
      */
     public function removeSignals(array $paths, array $options = []): void
     {
-        $this->callSse(fn(SSE $sse) => $sse->removeSignals($paths, $options));
+        $this->callSse('removeSignals', $paths, $options);
     }
 
     /**
@@ -111,10 +116,10 @@ class SseService extends Component
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
-            $options
+            $options,
         );
 
-        $this->callSse(fn(SSE $sse) => $sse->executeScript($script, $options));
+        $this->callSse('executeScript', $script, $options);
     }
 
     /**
@@ -141,6 +146,14 @@ class SseService extends Component
         $request->setBodyParams([]);
 
         return $response;
+    }
+
+    /**
+     * Sets the server sent event method currently in process.\
+     */
+    public function setSseMethodInProcess(string $method): void
+    {
+        $this->sseMethodInProcess = $method;
     }
 
     /**
@@ -178,20 +191,38 @@ class SseService extends Component
     }
 
     /**
-     * Calls a callable, passing in an SSE object and cleaning output buffers.
+     * Returns a server sent event generator.
      */
-    private function callSse(callable $callable): void
+    private function getSse(): ServerSentEventGenerator
     {
+        if ($this->sse === null) {
+            $this->sse = new ServerSentEventGenerator();
+        }
+
+        return $this->sse;
+    }
+
+    /**
+     * Calls an SSE method with arguments and cleans output buffers.
+     */
+    private function callSse(string $method, ...$args): void
+    {
+        if ($this->sseMethodInProcess && $this->sseMethodInProcess !== $method) {
+            $message = 'The SSE method `' . $method . '` cannot be called when `' . $this->sseMethodInProcess . '` is already in process.';
+            if (in_array($method, ['mergeSignals', 'removeSignals'])) {
+                $message .= ' Ensure that you are not setting or removing signals inside `{% fragment %}` or `{% executescript %}` tags.';
+            }
+            $this->throwException($message);
+        }
+
         // Clean and end all existing output buffers.
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
 
-        if ($this->sse === null) {
-            $this->sse = new SSE();
-        }
+        $this->getSse()->$method(...$args);
 
-        $callable($this->sse);
+        $this->sseMethodInProcess = null;
 
         // Start a new output buffer to capture any subsequent inline content.
         ob_start();

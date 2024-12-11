@@ -29,9 +29,15 @@ _Tests the signals model._
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test removing a signal value.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test removing a nested signal value.  
 
+### [Sse](tests/Feature/SseTest.php)
+
+_Tests the SSE service._
+
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that calling an SSE method when another one is in process throws an exception.  
+
 ### [Variable](tests/Feature/VariableTest.php)
 
-_Tests the Datastar functions._
+_Tests the Datastar variable._
 
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing a reserved variable name throws an exception.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing an object variable throws an exception.  

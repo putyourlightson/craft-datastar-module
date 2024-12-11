@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Tests the Datastar functions.
+ * Tests the Datastar variable.
  */
 
 use putyourlightson\datastar\Datastar;
