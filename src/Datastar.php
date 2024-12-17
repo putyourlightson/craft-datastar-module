@@ -6,6 +6,7 @@
 namespace putyourlightson\datastar;
 
 use Craft;
+use craft\web\View;
 use nystudio107\autocomplete\events\DefineGeneratorValuesEvent;
 use nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
@@ -26,6 +27,11 @@ class Datastar extends Module
      * The module ID.
      */
     public const ID = 'datastar-module';
+
+    /**
+     * The URL of the script to expose, if one was registered.
+     */
+    private ?string $exposeScriptUrl = null;
 
     /**
      * The module settings.
@@ -71,6 +77,19 @@ class Datastar extends Module
         $this->registerAutocompleteEvent();
     }
 
+    /**
+     * Expose the Datastar object by attaching it to the `window` element.
+     */
+    public function expose(): void
+    {
+        if ($this->exposeScriptUrl !== null) {
+            Craft::$app->getView()->registerScript('import { Datastar } from "' . $this->exposeScriptUrl . '"; window.Datastar = Datastar', View::POS_END, ['type' => 'module']);
+
+            // Set to `null` so that it can only happen once.
+            $this->exposeScriptUrl = null;
+        }
+    }
+
     public function getSettings(): SettingsModel
     {
         if ($this->_settings === null) {
@@ -103,6 +122,8 @@ class Datastar extends Module
         // Register the JS file explicitly so that it will be output when using template caching.
         $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
         Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
+
+        $this->exposeScriptUrl = $url;
     }
 
     private function registerAutocompleteEvent(): void
