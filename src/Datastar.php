@@ -36,7 +36,7 @@ class Datastar extends Module
     /**
      * The module settings.
      */
-    private ?SettingsModel $_settings = null;
+    private ?SettingsModel $settingsInternal = null;
 
     /**
      * The bootstrap process creates an instance of the module.
@@ -73,8 +73,11 @@ class Datastar extends Module
 
         $this->registerComponents();
         $this->registerTwigExtension();
-        $this->registerScript();
         $this->registerAutocompleteEvent();
+
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->registerScript();
+        }
     }
 
     /**
@@ -92,11 +95,11 @@ class Datastar extends Module
 
     public function getSettings(): SettingsModel
     {
-        if ($this->_settings === null) {
-            $this->_settings = new SettingsModel(Craft::$app->getConfig()->getConfigFromFile('datastar'));
+        if ($this->settingsInternal === null) {
+            $this->settingsInternal = new SettingsModel(Craft::$app->getConfig()->getConfigFromFile('datastar'));
         }
 
-        return $this->_settings;
+        return $this->settingsInternal;
     }
 
     private function registerComponents(): void
@@ -109,6 +112,20 @@ class Datastar extends Module
     private function registerTwigExtension(): void
     {
         Craft::$app->getView()->registerTwigExtension(new DatastarTwigExtension());
+    }
+
+    private function registerAutocompleteEvent(): void
+    {
+        if (!class_exists('nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator')) {
+            return;
+        }
+
+        Event::on(AutocompleteTwigExtensionGenerator::class,
+            AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
+            function(DefineGeneratorValuesEvent $event) {
+                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
+            }
+        );
     }
 
     private function registerScript(): void
@@ -124,19 +141,5 @@ class Datastar extends Module
         Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
 
         $this->exposeScriptUrl = $url;
-    }
-
-    private function registerAutocompleteEvent(): void
-    {
-        if (!class_exists('nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator')) {
-            return;
-        }
-
-        Event::on(AutocompleteTwigExtensionGenerator::class,
-            AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
-            function(DefineGeneratorValuesEvent $event) {
-                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
-            }
-        );
     }
 }
