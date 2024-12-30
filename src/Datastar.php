@@ -73,11 +73,8 @@ class Datastar extends Module
 
         $this->registerComponents();
         $this->registerTwigExtension();
+        $this->registerScript();
         $this->registerAutocompleteEvent();
-
-        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            $this->registerScript();
-        }
     }
 
     /**
@@ -114,20 +111,6 @@ class Datastar extends Module
         Craft::$app->getView()->registerTwigExtension(new DatastarTwigExtension());
     }
 
-    private function registerAutocompleteEvent(): void
-    {
-        if (!class_exists('nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator')) {
-            return;
-        }
-
-        Event::on(AutocompleteTwigExtensionGenerator::class,
-            AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
-            function(DefineGeneratorValuesEvent $event) {
-                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
-            }
-        );
-    }
-
     private function registerScript(): void
     {
         if (!$this->settings->registerScript) {
@@ -141,5 +124,19 @@ class Datastar extends Module
         Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
 
         $this->exposeScriptUrl = $url;
+    }
+
+    private function registerAutocompleteEvent(): void
+    {
+        if (!class_exists('nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator')) {
+            return;
+        }
+
+        Event::on(AutocompleteTwigExtensionGenerator::class,
+            AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
+            function(DefineGeneratorValuesEvent $event) {
+                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
+            }
+        );
     }
 }

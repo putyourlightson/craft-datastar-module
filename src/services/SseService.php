@@ -135,15 +135,20 @@ class SseService extends Component
         }
 
         if ($request->getIsGet()) {
-            $request->setQueryParams($params);
+            $requestParams = $request->getQueryParams();
+            $request->setQueryParams(array_merge($requestParams, $params));
         } else {
-            $request->setBodyParams($params);
+            $requestParams = $request->getBodyParams();
+            $request->setBodyParams(array_merge($requestParams, $params));
         }
 
         $response = Craft::$app->runAction($route);
 
-        $request->setQueryParams([]);
-        $request->setBodyParams([]);
+        if ($request->getIsGet()) {
+            $request->setQueryParams($requestParams);
+        } else {
+            $request->setBodyParams($requestParams);
+        }
 
         return $response;
     }

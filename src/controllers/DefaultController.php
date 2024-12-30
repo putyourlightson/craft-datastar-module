@@ -41,9 +41,11 @@ class DefaultController extends Controller
         $config = $this->request->getParam('config');
         $signals = ServerSentEventGenerator::readSignals();
 
-        // Clear out params to prevent them from being processed controller actions.
-        $this->request->setQueryParams([]);
-        $this->request->setBodyParams([]);
+        if (strtolower($this->request->getContentType()) === 'application/json') {
+            // Clear out params to prevent them from being processed by controller actions.
+            $this->request->setQueryParams([]);
+            $this->request->setBodyParams([]);
+        }
 
         // Set the response headers for the event stream.
         $this->response->getHeaders()->set('Content-Type', 'text/event-stream');
