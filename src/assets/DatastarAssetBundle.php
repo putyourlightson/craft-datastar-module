@@ -10,7 +10,7 @@ class DatastarAssetBundle extends AssetBundle
     /**
      * @inheritdoc
      */
-    public $sourcePath = __DIR__ . '/../resources/lib/datastar/' . Consts::VERSION;
+    public $sourcePath = '@putyourlightson/datastar/resources/lib/datastar/' . Consts::VERSION;
 
     /**
      * @inheritdoc

@@ -59,7 +59,6 @@ class Datastar extends Module
         $module = new Datastar(self::ID);
         static::setInstance($module);
         Craft::$app->setModule(self::ID, $module);
-        Craft::setAlias('@putyourlightson/datastar', __DIR__);
 
         return $module;
     }
@@ -70,6 +69,8 @@ class Datastar extends Module
     public function init(): void
     {
         parent::init();
+
+        Craft::setAlias('@putyourlightson/datastar', __DIR__);
 
         $this->registerComponents();
         $this->registerTwigExtension();
