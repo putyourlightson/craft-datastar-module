@@ -13,10 +13,8 @@ class DatastarVariable
     /**
      * Returns a Datastar SSE action.
      */
-    public function sse(string $template, array $options = []): string
+    public function sse(string $template, array $variables = [], array $options = []): string
     {
-        $variables = $options['variables'] ?? [];
-        unset($options['variables']);
         $method = $options['method'] ?? 'get';
         $includeCsrfToken = strtolower($method) !== 'get';
 
