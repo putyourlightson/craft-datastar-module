@@ -48,13 +48,9 @@ class DefaultController extends Controller
         }
 
         // Set the response headers for the event stream.
-        $this->response->getHeaders()->set('Content-Type', 'text/event-stream');
-        $this->response->getHeaders()->set('Cache-Control', 'no-cache');
-        $this->response->getHeaders()->set('Connection', 'keep-alive');
-
-        // Disable buffering for Nginx.
-        // https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_buffering
-        $this->response->getHeaders()->set('X-Accel-Buffering', 'no');
+        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
+            $this->response->getHeaders()->set($name, $value);
+        }
 
         $this->response->format = Response::FORMAT_RAW;
 

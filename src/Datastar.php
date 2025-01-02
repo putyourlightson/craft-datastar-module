@@ -69,6 +69,7 @@ class Datastar extends Module
     public function init(): void
     {
         Craft::setAlias('@putyourlightson/datastar', __DIR__);
+
         parent::init();
 
         $this->registerComponents();

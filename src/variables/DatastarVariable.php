@@ -11,61 +11,43 @@ use yii\web\Response;
 class DatastarVariable
 {
     /**
-     * Returns a Datastar SSE action.
-     */
-    public function sse(string $template, array $variables = [], array $options = []): string
-    {
-        $method = $options['method'] ?? 'get';
-        $includeCsrfToken = strtolower($method) !== 'get';
-
-        $url = Datastar::getInstance()->sse->getUrl($template, $variables, $includeCsrfToken);
-
-        $args = ["'$url'"];
-        if (!empty($options)) {
-            $args[] = json_encode($options);
-        }
-
-        return 'sse(' . implode(', ', $args) . ')';
-    }
-
-    /**
-     * Returns a Datastar SSE action with a `get` request.
+     * Returns a Datastar `@get` action.
      */
     public function get(string $template, array $variables = [], array $options = []): string
     {
-        return $this->sse($template, $variables, array_merge($options, ['method' => 'get']));
+        return Datastar::getInstance()->sse->getAction('get', $template, $variables, $options);
     }
 
     /**
-     * Returns a Datastar SSE action with a `post` request.
+     * Returns a Datastar `@post` action.
      */
     public function post(string $template, array $variables = [], array $options = []): string
     {
-        return $this->sse($template, $variables, array_merge($options, ['method' => 'post']));
+        return Datastar::getInstance()->sse->getAction('post', $template, $variables, $options);
     }
 
     /**
-     * Returns a Datastar SSE action with a `put` request.
+     * Returns a Datastar `@put` action.
      */
     public function put(string $template, array $variables = [], array $options = []): string
     {
-        return $this->sse($template, $variables, array_merge($options, ['method' => 'put']));
+        return Datastar::getInstance()->sse->getAction('put', $template, $variables, $options);
     }
 
     /**
-     * Returns a Datastar SSE action with a `patch` request.
+     * Returns a Datastar `@patch` action.
      */
     public function patch(string $template, array $variables = [], array $options = []): string
     {
-        return $this->sse($template, $variables, array_merge($options, ['method' => 'patch']));
+        return Datastar::getInstance()->sse->getAction('patch', $template, $variables, $options);
     }
 
     /**
-     * Returns a Datastar SSE action with a `delete` request.
+     * Returns a Datastar `@delete` action.
      */
     public function delete(string $template, array $variables = [], array $options = []): string
     {
-        return $this->sse($template, $variables, array_merge($options, ['method' => 'delete']));
+        return Datastar::getInstance()->sse->getAction('delete', $template, $variables, $options);
     }
 
     /**

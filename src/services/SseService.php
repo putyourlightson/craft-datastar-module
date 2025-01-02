@@ -38,15 +38,31 @@ class SseService extends Component
     private ?string $csrfToken = null;
 
     /**
+     * Returns a Datastar action.
+     */
+    public function getAction(string $method, string $template, array $variables = [], array $options = []): string
+    {
+        $url = $this->getUrl($method, $template, $variables);
+
+        $args = ["'$url'"];
+        if (!empty($options)) {
+            $args[] = json_encode($options);
+        }
+        $args = implode(', ', $args);
+
+        return "@$method($args)";
+    }
+
+    /**
      * Returns a Datastar URL endpoint.
      */
-    public function getUrl(string $template, array $variables = [], bool $includeCsrfToken = false): string
+    public function getUrl(string $method, string $template, array $variables = []): string
     {
         $config = new ConfigModel([
             'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
             'template' => $template,
             'variables' => $variables,
-            'includeCsrfToken' => $includeCsrfToken,
+            'includeCsrfToken' => $method !== 'get',
         ]);
 
         if (!$config->validate()) {
