@@ -46,7 +46,7 @@ class SseService extends Component
 
         $args = ["'$url'"];
         if (!empty($options)) {
-            $args[] = json_encode($options);
+            $args[] = Json::encode($options);
         }
         $args = implode(', ', $args);
 
@@ -182,7 +182,11 @@ class SseService extends Component
      */
     public function stream(string $config, array $signals): array
     {
-        $config = $this->getConfigForResponse($config);
+        $config = ConfigModel::fromHashed($config);
+        if ($config === null) {
+            $this->throwException('Submitted data was tampered.');
+        }
+
         Craft::$app->getSites()->setCurrentSite($config->siteId);
         $this->csrfToken = $config->csrfToken;
 
@@ -247,19 +251,6 @@ class SseService extends Component
 
         // Start a new output buffer to capture any subsequent inline content.
         ob_start();
-    }
-
-    /**
-     * Returns a validated config model.
-     */
-    private function getConfigForResponse(string $config): ConfigModel
-    {
-        $data = Craft::$app->getSecurity()->validateData($config);
-        if ($data === false) {
-            $this->throwException('Submitted data was tampered.');
-        }
-
-        return new ConfigModel(Json::decodeIfJson($data));
     }
 
     /**

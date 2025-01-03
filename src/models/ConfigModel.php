@@ -18,6 +18,19 @@ class ConfigModel extends Model
     public bool $includeCsrfToken = false;
     public ?string $csrfToken = null;
 
+    /**
+     * Creates a new instance from a hashed config string.
+     */
+    public static function fromHashed(string $config): ?self
+    {
+        $data = Craft::$app->getSecurity()->validateData($config);
+        if ($data === false) {
+            return null;
+        }
+
+        return new self(Json::decodeIfJson($data));
+    }
+
     protected function defineRules(): array
     {
         return [
