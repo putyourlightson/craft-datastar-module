@@ -11,7 +11,7 @@ use Twig\Node\Node;
 
 class ExecuteScriptNode extends Node
 {
-    use NodeTrait;
+    use CompileWithOptionsTrait;
 
     /**
      * @uses SseService::executeScript()

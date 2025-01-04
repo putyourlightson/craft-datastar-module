@@ -9,7 +9,7 @@ use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\services\SseService;
 use Twig\Compiler;
 
-trait NodeTrait
+trait CompileWithOptionsTrait
 {
     /**
      * Compiles a node with options.

@@ -12,7 +12,7 @@ use Twig\Node\Node;
 
 class FragmentNode extends Node
 {
-    use NodeTrait;
+    use CompileWithOptionsTrait;
 
     /**
      * @uses SseService::mergeFragments
