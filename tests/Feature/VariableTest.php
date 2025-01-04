@@ -15,12 +15,11 @@ beforeEach(function() {
 
 test('Test creating an action', function(string $method) {
     $variable = new DatastarVariable();
-    $value = $variable->sse('template', ['variables' => ['x' => 1], 'method' => $method]);
+    $value = $variable->$method('template', ['x' => 1]);
     expect($value)
-        ->toStartWith('sse(')
+        ->toStartWith("@$method(")
         ->toContain('template')
-        ->toContain('{"method":"' . $method . '"}')
-        ->not->toContain('{"variables":{"x":1}}');
+        ->not->toContain('{"x":1}');
 
     if ($method === 'get') {
         expect($value)
@@ -39,10 +38,10 @@ test('Test creating an action', function(string $method) {
 
 test('Test that creating an action containing a reserved variable name throws an exception', function() {
     $variable = new DatastarVariable();
-    $variable->sse('template', ['variables' => [Datastar::getInstance()->settings->signalsVariableName => 1]]);
+    $variable->get('template', [Datastar::getInstance()->settings->signalsVariableName => 1]);
 })->throws(SyntaxError::class);
 
 test('Test that creating an action containing an object variable throws an exception', function() {
     $variable = new DatastarVariable();
-    $variable->sse('template', ['variables' => ['object' => new stdClass()]]);
+    $variable->get('template', ['object' => new stdClass()]);
 })->throws(SyntaxError::class);
