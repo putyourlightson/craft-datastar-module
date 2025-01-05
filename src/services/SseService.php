@@ -7,17 +7,11 @@ namespace putyourlightson\datastar\services;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\Json;
-use craft\helpers\UrlHelper;
-use craft\web\Request;
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\models\ConfigModel;
-use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
-use Twig\Error\SyntaxError;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
@@ -26,55 +20,12 @@ class SseService extends Component
     /**
      * The server sent event generator.
      */
-    private ServerSentEventGenerator|null $sse = null;
+    private ServerSentEventGenerator|null $sseGenerator = null;
 
     /**
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
-
-    /**
-     * Returns a Datastar action.
-     */
-    public function getAction(string $method, string $template, array $variables = [], array $options = []): string
-    {
-        $url = $this->getUrl($template, $variables);
-        $args = ["'$url'"];
-
-        if ($method !== 'get') {
-            $headers = $options['headers'] ?? [];
-            $headers[Request::CSRF_HEADER] = Craft::$app->getRequest()->getCsrfToken();
-            $options['headers'] = $headers;
-        }
-
-        if (!empty($options)) {
-            $args[] = Json::encode($options);
-        }
-
-        $args = implode(', ', $args);
-
-        return "@$method($args)";
-    }
-
-    /**
-     * Returns a Datastar URL endpoint.
-     */
-    public function getUrl(string $template, array $variables = []): string
-    {
-        $config = new ConfigModel([
-            'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
-            'template' => $template,
-            'variables' => $variables,
-        ]);
-
-        if (!$config->validate()) {
-            throw new SyntaxError(implode(' ', $config->getFirstErrors()));
-        }
-
-        return UrlHelper::actionUrl('datastar-module', [
-            'config' => $config->getHashed(),
-        ]);
-    }
 
     /**
      * Merges HTML fragments into the DOM.
@@ -168,34 +119,23 @@ class SseService extends Component
     }
 
     /**
-     * Sets the server sent event method currently in process.\
+     * Sets the server sent event method currently in process.
      */
-    public function setSseMethodInProcess(string $method): void
+    public function setSseInProcess(string $method): void
     {
         $this->sseMethodInProcess = $method;
     }
 
     /**
-     * Streams the response and returns an empty array.
+     * Prepares the response for server sent events.
      */
-    public function stream(string $config, array $signals): array
+    public function prepareResponse(Response $response): void
     {
-        $config = ConfigModel::fromHashed($config);
-        if ($config === null) {
-            $this->throwException('Submitted data was tampered.');
+        $response->format = Response::FORMAT_RAW;
+
+        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
+            $response->headers->set($name, $value);
         }
-
-        Craft::$app->getSites()->setCurrentSite($config->siteId);
-
-        $signals = new SignalsModel($signals);
-        $variables = array_merge(
-            [Datastar::getInstance()->settings->signalsVariableName => $signals],
-            $config->variables,
-        );
-
-        $this->renderTemplate($config->template, $variables);
-
-        return [];
     }
 
     /**
@@ -217,11 +157,11 @@ class SseService extends Component
      */
     private function getSse(): ServerSentEventGenerator
     {
-        if ($this->sse === null) {
-            $this->sse = new ServerSentEventGenerator();
+        if ($this->sseGenerator === null) {
+            $this->sseGenerator = new ServerSentEventGenerator();
         }
 
-        return $this->sse;
+        return $this->sseGenerator;
     }
 
     /**

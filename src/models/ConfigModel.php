@@ -29,6 +29,11 @@ class ConfigModel extends Model
         return new self(Json::decodeIfJson($data));
     }
 
+    /**
+     * Validates that none of the variables are objects, recursively.
+     *
+     * @uses validateVariables()
+     */
     protected function defineRules(): array
     {
         return [
@@ -40,29 +45,11 @@ class ConfigModel extends Model
     }
 
     /**
-     * Validates that none of the variables are objects, recursively.
-     *
-     * @used-by defineRules()
+     * Validates the variables.
      */
-    public function validateVariables(mixed $attribute): bool
+    public function validateVariables(): bool
     {
-        $signalsVariableName = Datastar::getInstance()->settings->signalsVariableName;
-
-        foreach ($this->variables as $key => $value) {
-            if ($key === $signalsVariableName) {
-                $this->addError($attribute, 'Variable `' . $signalsVariableName . '` is reserved. Use a different name or modify the name of the signals variable using the `signalsVariableName` config setting.');
-
-                return false;
-            }
-
-            if (is_object($value) || (is_array($value) && !$this->validateVariables($value))) {
-                $this->addError($attribute, 'Variable `' . $key . '` is an object, which is a forbidden variable type in the context of a Datastar request.');
-
-                return false;
-            }
-        }
-
-        return true;
+        return $this->validateVariablesRecursively($this->variables);
     }
 
     /**
@@ -78,5 +65,31 @@ class ConfigModel extends Model
         $encoded = Json::encode($attributes);
 
         return Craft::$app->getSecurity()->hashData($encoded);
+    }
+
+    /**
+     * Validates the variables recursively.
+     */
+    private function validateVariablesRecursively(array $variables): bool
+    {
+        $signalsVariableName = Datastar::getInstance()->settings->signalsVariableName;
+
+        foreach ($variables as $key => $value) {
+            if ($key === $signalsVariableName) {
+                $this->addError('variables', 'Variable `' . $signalsVariableName . '` is reserved. Use a different name or modify the name of the signals variable using the `signalsVariableName` config setting.');
+                return false;
+            }
+
+            if (is_object($value)) {
+                $this->addError('variables', 'Variable `' . $key . '` is an object, which is a forbidden variable type in the context of a Datastar request.');
+                return false;
+            }
+
+            if (is_array($value)) {
+                return $this->validateVariablesRecursively($value);
+            }
+        }
+
+        return true;
     }
 }

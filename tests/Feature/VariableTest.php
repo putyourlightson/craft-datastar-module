@@ -16,11 +16,10 @@ beforeEach(function() {
 
 test('Test creating an action', function(string $method) {
     $variable = new DatastarVariable();
-    $value = $variable->$method('template', ['x' => 1]);
+    $value = $variable->$method('template');
     expect($value)
         ->toStartWith("@$method(")
-        ->toContain('template')
-        ->not->toContain('{"x":1}');
+        ->toContain('template');
 
     if ($method === 'get') {
         expect($value)
@@ -36,6 +35,13 @@ test('Test creating an action', function(string $method) {
     'patch',
     'delete',
 ]);
+
+test('Test creating an action containing an array of primitive variables', function() {
+    $variable = new DatastarVariable();
+    $value = $variable->get('template', ['x' => 1, 'y' => 'string', 'z' => true]);
+    expect($value)
+        ->toContain('1', 'string', 'true');
+});
 
 test('Test that creating an action containing a reserved variable name throws an exception', function() {
     $variable = new DatastarVariable();

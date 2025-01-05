@@ -5,7 +5,13 @@
 
 namespace putyourlightson\datastar\variables;
 
+use Craft;
+use craft\helpers\Json;
+use craft\helpers\UrlHelper;
+use craft\web\Request;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\models\ConfigModel;
+use Twig\Error\SyntaxError;
 use yii\web\Response;
 
 class DatastarVariable
@@ -15,7 +21,7 @@ class DatastarVariable
      */
     public function get(string $template, array $variables = [], array $options = []): string
     {
-        return Datastar::getInstance()->sse->getAction('get', $template, $variables, $options);
+        return $this->getAction('get', $template, $variables, $options);
     }
 
     /**
@@ -23,7 +29,7 @@ class DatastarVariable
      */
     public function post(string $template, array $variables = [], array $options = []): string
     {
-        return Datastar::getInstance()->sse->getAction('post', $template, $variables, $options);
+        return $this->getAction('post', $template, $variables, $options);
     }
 
     /**
@@ -31,7 +37,7 @@ class DatastarVariable
      */
     public function put(string $template, array $variables = [], array $options = []): string
     {
-        return Datastar::getInstance()->sse->getAction('put', $template, $variables, $options);
+        return $this->getAction('put', $template, $variables, $options);
     }
 
     /**
@@ -39,7 +45,7 @@ class DatastarVariable
      */
     public function patch(string $template, array $variables = [], array $options = []): string
     {
-        return Datastar::getInstance()->sse->getAction('patch', $template, $variables, $options);
+        return $this->getAction('patch', $template, $variables, $options);
     }
 
     /**
@@ -47,7 +53,7 @@ class DatastarVariable
      */
     public function delete(string $template, array $variables = [], array $options = []): string
     {
-        return Datastar::getInstance()->sse->getAction('delete', $template, $variables, $options);
+        return $this->getAction('delete', $template, $variables, $options);
     }
 
     /**
@@ -55,6 +61,49 @@ class DatastarVariable
      */
     public function runAction(string $route, array $params = []): Response
     {
-        return Datastar::getInstance()->sse->runAction($route, $params);
+        return Datastar::getInstance()->runAction($route, $params);
+    }
+
+    /**
+     * Returns a Datastar action.
+     */
+    private function getAction(string $method, string $template, array $variables = [], array $options = []): string
+    {
+        $url = $this->getUrl($template, $variables);
+        $args = ["'$url'"];
+
+        if ($method !== 'get') {
+            $headers = $options['headers'] ?? [];
+            $headers[Request::CSRF_HEADER] = Craft::$app->getRequest()->getCsrfToken();
+            $options['headers'] = $headers;
+        }
+
+        if (!empty($options)) {
+            $args[] = Json::encode($options);
+        }
+
+        $args = implode(', ', $args);
+
+        return "@$method($args)";
+    }
+
+    /**
+     * Returns a Datastar URL endpoint.
+     */
+    private function getUrl(string $template, array $variables = []): string
+    {
+        $config = new ConfigModel([
+            'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
+            'template' => $template,
+            'variables' => $variables,
+        ]);
+
+        if (!$config->validate()) {
+            throw new SyntaxError(implode(' ', $config->getFirstErrors()));
+        }
+
+        return UrlHelper::actionUrl('datastar-module', [
+            'config' => $config->getHashed(),
+        ]);
     }
 }

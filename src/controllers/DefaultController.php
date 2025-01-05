@@ -8,7 +8,10 @@ namespace putyourlightson\datastar\controllers;
 use Craft;
 use craft\web\Controller;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\models\ConfigModel;
+use putyourlightson\datastar\models\SignalsModel;
 use starfederation\datastar\ServerSentEventGenerator;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -31,10 +34,25 @@ class DefaultController extends Controller
         return parent::beforeAction($action);
     }
 
+    /**
+     * Default controller action.
+     */
     public function actionIndex(): Response
     {
-        $config = $this->request->getParam('config');
-        $signals = ServerSentEventGenerator::readSignals();
+        $hashedConfig = $this->request->getParam('config');
+        $config = ConfigModel::fromHashed($hashedConfig);
+        if ($config === null) {
+            throw new BadRequestHttpException('Submitted data was tampered.');
+        }
+
+        Craft::$app->getSites()->setCurrentSite($config->siteId);
+
+        $template = $config->template;
+        $signals = new SignalsModel(ServerSentEventGenerator::readSignals());
+        $variables = array_merge(
+            [Datastar::getInstance()->settings->signalsVariableName => $signals],
+            $config->variables,
+        );
 
         if (strtolower($this->request->getContentType()) === 'application/json') {
             // Clear out params to prevent them from being processed by controller actions.
@@ -42,18 +60,23 @@ class DefaultController extends Controller
             $this->request->setBodyParams([]);
         }
 
-        // Set the response headers for the event stream.
-        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
-            $this->response->getHeaders()->set($name, $value);
-        }
-
-        $this->response->format = Response::FORMAT_RAW;
-
         // Stream the response.
-        $this->response->stream = function() use ($config, $signals) {
-            return Datastar::getInstance()->sse->stream($config, $signals);
+        $this->response->stream = function() use ($template, $variables) {
+            return $this->stream($template, $variables);
         };
 
+        Datastar::getInstance()->sse->prepareResponse($this->response);
+
         return $this->response;
+    }
+
+    /**
+     * Streams the response.
+     */
+    protected function stream(string $template, array $variables): array
+    {
+        $this->renderTemplate($template, $variables);
+
+        return [];
     }
 }
