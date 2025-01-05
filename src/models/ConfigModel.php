@@ -15,8 +15,6 @@ class ConfigModel extends Model
     public ?int $siteId = null;
     public string $template = '';
     public array $variables = [];
-    public bool $includeCsrfToken = false;
-    public ?string $csrfToken = null;
 
     /**
      * Creates a new instance from a hashed config string.
@@ -38,7 +36,6 @@ class ConfigModel extends Model
             [['siteId'], 'integer'],
             [['template'], 'string'],
             [['variables'], 'validateVariables'],
-            [['includeCsrfToken'], 'boolean'],
         ];
     }
 
@@ -73,15 +70,10 @@ class ConfigModel extends Model
      */
     public function getHashed(): string
     {
-        if ($this->includeCsrfToken) {
-            $this->csrfToken = Craft::$app->getRequest()->csrfToken;
-        }
-
         $attributes = array_filter([
             'siteId' => $this->siteId,
             'template' => $this->template,
             'variables' => $this->variables,
-            'csrfToken' => $this->csrfToken,
         ]);
         $encoded = Json::encode($attributes);
 

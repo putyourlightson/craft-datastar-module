@@ -4,6 +4,7 @@
  * Tests the Datastar variable.
  */
 
+use craft\web\Request;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\variables\DatastarVariable;
@@ -23,10 +24,10 @@ test('Test creating an action', function(string $method) {
 
     if ($method === 'get') {
         expect($value)
-            ->not->toContain('csrf');
+            ->not->toContain(Request::CSRF_HEADER);
     } else {
         expect($value)
-            ->toContain('csrf');
+            ->toContain(Request::CSRF_HEADER);
     }
 })->with([
     'get',

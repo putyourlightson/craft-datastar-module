@@ -17,11 +17,6 @@ class DefaultController extends Controller
     /**
      * @inheritdoc
      */
-    public $enableCsrfValidation = false;
-
-    /**
-     * @inheritdoc
-     */
     protected int|bool|array $allowAnonymous = true;
 
     /**

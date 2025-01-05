@@ -9,6 +9,7 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\web\Request;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
 use putyourlightson\datastar\models\SignalsModel;
@@ -33,21 +34,23 @@ class SseService extends Component
     private ?string $sseMethodInProcess = null;
 
     /**
-     * The CSRF token to include in the request.
-     */
-    private ?string $csrfToken = null;
-
-    /**
      * Returns a Datastar action.
      */
     public function getAction(string $method, string $template, array $variables = [], array $options = []): string
     {
-        $url = $this->getUrl($method, $template, $variables);
-
+        $url = $this->getUrl($template, $variables);
         $args = ["'$url'"];
+
+        if ($method !== 'get') {
+            $headers = $options['headers'] ?? [];
+            $headers[Request::CSRF_HEADER] = Craft::$app->getRequest()->getCsrfToken();
+            $options['headers'] = $headers;
+        }
+
         if (!empty($options)) {
             $args[] = Json::encode($options);
         }
+
         $args = implode(', ', $args);
 
         return "@$method($args)";
@@ -56,13 +59,12 @@ class SseService extends Component
     /**
      * Returns a Datastar URL endpoint.
      */
-    public function getUrl(string $method, string $template, array $variables = []): string
+    public function getUrl(string $template, array $variables = []): string
     {
         $config = new ConfigModel([
             'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
             'template' => $template,
             'variables' => $variables,
-            'includeCsrfToken' => $method !== 'get',
         ]);
 
         if (!$config->validate()) {
@@ -146,10 +148,6 @@ class SseService extends Component
         $request = Craft::$app->getRequest();
         $request->getHeaders()->set('Accept', 'application/json');
 
-        if ($this->csrfToken !== null) {
-            $params[$request->csrfParam] = $this->csrfToken;
-        }
-
         if ($request->getIsGet()) {
             $requestParams = $request->getQueryParams();
             $request->setQueryParams(array_merge($requestParams, $params));
@@ -188,7 +186,6 @@ class SseService extends Component
         }
 
         Craft::$app->getSites()->setCurrentSite($config->siteId);
-        $this->csrfToken = $config->csrfToken;
 
         $signals = new SignalsModel($signals);
         $variables = array_merge(
