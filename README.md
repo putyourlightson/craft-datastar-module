@@ -37,7 +37,7 @@ class MyPlugin extends Plugin
 Then use the Datastar function and tags as normal in your control panel templates.
 
 ```twig
-<button data-on-click="{{ datastar.sse('_datastar/search') }}">Search</button>
+<button data-on-click="{{ datastar.get('_datastar/search') }}">Search</button>
 ```
 
 Datastar plugin issues should be reported to https://github.com/putyourlightson/craft-datastar/issues
