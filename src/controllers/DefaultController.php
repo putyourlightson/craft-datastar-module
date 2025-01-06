@@ -9,8 +9,6 @@ use Craft;
 use craft\web\Controller;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
-use putyourlightson\datastar\models\SignalsModel;
-use starfederation\datastar\ServerSentEventGenerator;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
@@ -39,6 +37,20 @@ class DefaultController extends Controller
      */
     public function actionIndex(): Response
     {
+        $this->response->stream = function() {
+            return $this->stream();
+        };
+
+        Datastar::getInstance()->sse->prepareResponse($this->response);
+
+        return $this->response;
+    }
+
+    /**
+     * Streams the response.
+     */
+    protected function stream(): array
+    {
         $hashedConfig = $this->request->getParam('config');
         $config = ConfigModel::fromHashed($hashedConfig);
         if ($config === null) {
@@ -48,7 +60,7 @@ class DefaultController extends Controller
         Craft::$app->getSites()->setCurrentSite($config->siteId);
 
         $template = $config->template;
-        $signals = new SignalsModel(ServerSentEventGenerator::readSignals());
+        $signals = Datastar::getInstance()->sse->getSignals();
         $variables = array_merge(
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $config->variables,
@@ -60,23 +72,9 @@ class DefaultController extends Controller
             $this->request->setBodyParams([]);
         }
 
-        // Stream the response.
-        $this->response->stream = function() use ($template, $variables) {
-            return $this->stream($template, $variables);
-        };
-
-        Datastar::getInstance()->sse->prepareResponse($this->response);
-
-        return $this->response;
-    }
-
-    /**
-     * Streams the response.
-     */
-    protected function stream(string $template, array $variables): array
-    {
         Datastar::getInstance()->sse->renderTemplate($template, $variables);
 
+        // Must return an array to prevent Yii from throwing an exception.
         return [];
     }
 }

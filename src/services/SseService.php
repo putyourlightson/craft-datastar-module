@@ -8,6 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator;
@@ -26,6 +27,42 @@ class SseService extends Component
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
+
+    /**
+     * Returns a signals model populated with signals passed into the request.
+     */
+    public function getSignals(): SignalsModel
+    {
+        return new SignalsModel(ServerSentEventGenerator::readSignals());
+    }
+
+    /**
+     * Prepares the response for server sent events.
+     */
+    public function prepareResponse(Response $response): void
+    {
+        $response->format = Response::FORMAT_RAW;
+
+        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
+            $response->headers->set($name, $value);
+        }
+    }
+
+    /**
+     * Renders a template, catching exceptions.
+     */
+    public function renderTemplate(string $template, array $variables): void
+    {
+        if (!Craft::$app->getView()->doesTemplateExist($template)) {
+            $this->throwException('Template `' . $template . '` does not exist.');
+        }
+
+        try {
+            Craft::$app->getView()->renderTemplate($template, $variables);
+        } catch (Throwable $exception) {
+            $this->throwException($exception);
+        }
+    }
 
     /**
      * Merges HTML fragments into the DOM.
@@ -124,34 +161,6 @@ class SseService extends Component
     public function setSseInProcess(string $method): void
     {
         $this->sseMethodInProcess = $method;
-    }
-
-    /**
-     * Prepares the response for server sent events.
-     */
-    public function prepareResponse(Response $response): void
-    {
-        $response->format = Response::FORMAT_RAW;
-
-        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
-            $response->headers->set($name, $value);
-        }
-    }
-
-    /**
-     * Renders a template, catching exceptions.
-     */
-    public function renderTemplate(string $template, array $variables): void
-    {
-        if (!Craft::$app->getView()->doesTemplateExist($template)) {
-            $this->throwException('Template `' . $template . '` does not exist.');
-        }
-
-        try {
-            Craft::$app->getView()->renderTemplate($template, $variables);
-        } catch (Throwable $exception) {
-            $this->throwException($exception);
-        }
     }
 
     /**
