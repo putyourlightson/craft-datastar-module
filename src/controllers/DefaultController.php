@@ -75,7 +75,7 @@ class DefaultController extends Controller
      */
     protected function stream(string $template, array $variables): array
     {
-        $this->renderTemplate($template, $variables);
+        Datastar::getInstance()->sse->renderTemplate($template, $variables);
 
         return [];
     }

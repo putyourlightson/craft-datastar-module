@@ -39,7 +39,7 @@ class SseService extends Component
             $options,
         );
 
-        $this->callSse('mergeFragments', $data, $options);
+        $this->sendSseEvent('mergeFragments', $data, $options);
     }
 
     /**
@@ -52,7 +52,7 @@ class SseService extends Component
             $options,
         );
 
-        $this->callSse('removeFragments', $selector, $options);
+        $this->sendSseEvent('removeFragments', $selector, $options);
     }
 
     /**
@@ -65,7 +65,7 @@ class SseService extends Component
             $options,
         );
 
-        $this->callSse('mergeSignals', $signals, $options);
+        $this->sendSseEvent('mergeSignals', $signals, $options);
     }
 
     /**
@@ -73,7 +73,7 @@ class SseService extends Component
      */
     public function removeSignals(array $paths, array $options = []): void
     {
-        $this->callSse('removeSignals', $paths, $options);
+        $this->sendSseEvent('removeSignals', $paths, $options);
     }
 
     /**
@@ -88,7 +88,7 @@ class SseService extends Component
             $options,
         );
 
-        $this->callSse('executeScript', $script, $options);
+        $this->sendSseEvent('executeScript', $script, $options);
     }
 
     /**
@@ -139,6 +139,22 @@ class SseService extends Component
     }
 
     /**
+     * Renders a template, catching exceptions.
+     */
+    public function renderTemplate(string $template, array $variables): void
+    {
+        if (!Craft::$app->getView()->doesTemplateExist($template)) {
+            $this->throwException('Template `' . $template . '` does not exist.');
+        }
+
+        try {
+            Craft::$app->getView()->renderTemplate($template, $variables);
+        } catch (Throwable $exception) {
+            $this->throwException($exception);
+        }
+    }
+
+    /**
      * Returns merged event options with null values removed.
      */
     private function mergeEventOptions(array ...$optionSets): array
@@ -155,7 +171,7 @@ class SseService extends Component
     /**
      * Returns a server sent event generator.
      */
-    private function getSse(): ServerSentEventGenerator
+    private function getSseGenerator(): ServerSentEventGenerator
     {
         if ($this->sseGenerator === null) {
             $this->sseGenerator = new ServerSentEventGenerator();
@@ -165,9 +181,9 @@ class SseService extends Component
     }
 
     /**
-     * Calls an SSE method with arguments and cleans output buffers.
+     * Sends an SSE event with arguments and cleans output buffers.
      */
-    private function callSse(string $method, ...$args): void
+    private function sendSseEvent(string $method, ...$args): void
     {
         if ($this->sseMethodInProcess && $this->sseMethodInProcess !== $method) {
             $message = 'The SSE method `' . $method . '` cannot be called when `' . $this->sseMethodInProcess . '` is already in process.';
@@ -182,28 +198,12 @@ class SseService extends Component
             ob_end_clean();
         }
 
-        $this->getSse()->$method(...$args);
+        $this->getSseGenerator()->$method(...$args);
 
         $this->sseMethodInProcess = null;
 
         // Start a new output buffer to capture any subsequent inline content.
         ob_start();
-    }
-
-    /**
-     * Renders a template, catching exceptions.
-     */
-    private function renderTemplate(string $template, array $variables): void
-    {
-        if (!Craft::$app->getView()->doesTemplateExist($template)) {
-            $this->throwException('Template `' . $template . '` does not exist.');
-        }
-
-        try {
-            Craft::$app->getView()->renderTemplate($template, $variables);
-        } catch (Throwable $exception) {
-            $this->throwException($exception);
-        }
     }
 
     /**
