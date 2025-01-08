@@ -43,7 +43,7 @@ class SseService extends Component
     {
         $response->format = Response::FORMAT_RAW;
 
-        foreach (ServerSentEventGenerator::HEADERS as $name => $value) {
+        foreach (ServerSentEventGenerator::headers() as $name => $value) {
             $response->headers->set($name, $value);
         }
     }
