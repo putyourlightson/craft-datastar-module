@@ -8,13 +8,15 @@ namespace putyourlightson\datastar\controllers;
 use Craft;
 use craft\web\Controller;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\DatastarEventStream;
 use putyourlightson\datastar\models\ConfigModel;
-use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 class DefaultController extends Controller
 {
+    use DatastarEventStream;
+
     /**
      * @inheritdoc
      */
@@ -37,44 +39,29 @@ class DefaultController extends Controller
      */
     public function actionIndex(): Response
     {
-        $this->response->stream = function() {
-            return $this->stream();
-        };
+        return $this->getStreamedResponse(function() {
+            $hashedConfig = $this->request->getParam('config');
+            $config = ConfigModel::fromHashed($hashedConfig);
+            if ($config === null) {
+                $this->throwException('Submitted data was tampered.');
+            }
 
-        Datastar::getInstance()->sse->prepareResponse($this->response);
+            Craft::$app->getSites()->setCurrentSite($config->siteId);
 
-        return $this->response;
-    }
+            $template = $config->template;
+            $signals = $this->getSignals();
+            $variables = array_merge(
+                [Datastar::getInstance()->settings->signalsVariableName => $signals],
+                $config->variables,
+            );
 
-    /**
-     * Streams the response.
-     */
-    protected function stream(): array
-    {
-        $hashedConfig = $this->request->getParam('config');
-        $config = ConfigModel::fromHashed($hashedConfig);
-        if ($config === null) {
-            throw new BadRequestHttpException('Submitted data was tampered.');
-        }
+            if (strtolower($this->request->getContentType()) === 'application/json') {
+                // Clear out params to prevent them from being processed by controller actions.
+                $this->request->setQueryParams([]);
+                $this->request->setBodyParams([]);
+            }
 
-        Craft::$app->getSites()->setCurrentSite($config->siteId);
-
-        $template = $config->template;
-        $signals = Datastar::getInstance()->sse->getSignals();
-        $variables = array_merge(
-            [Datastar::getInstance()->settings->signalsVariableName => $signals],
-            $config->variables,
-        );
-
-        if (strtolower($this->request->getContentType()) === 'application/json') {
-            // Clear out params to prevent them from being processed by controller actions.
-            $this->request->setQueryParams([]);
-            $this->request->setBodyParams([]);
-        }
-
-        Datastar::getInstance()->sse->renderTemplate($template, $variables);
-
-        // Must return an array to prevent Yii from throwing an exception.
-        return [];
+            $this->renderDatastarTemplate($template, $variables);
+        });
     }
 }

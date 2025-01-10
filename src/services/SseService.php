@@ -8,9 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
-use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -29,45 +27,7 @@ class SseService extends Component
     private ?string $sseMethodInProcess = null;
 
     /**
-     * Returns a signals model populated with signals passed into the request.
-     */
-    public function getSignals(): SignalsModel
-    {
-        return new SignalsModel(ServerSentEventGenerator::readSignals());
-    }
-
-    /**
-     * Prepares the response for server sent events.
-     */
-    public function prepareResponse(Response $response): void
-    {
-        $response->format = Response::FORMAT_RAW;
-
-        foreach (ServerSentEventGenerator::headers() as $name => $value) {
-            $response->headers->set($name, $value);
-        }
-    }
-
-    /**
-     * Renders a template, catching exceptions.
-     */
-    public function renderTemplate(string $template, array $variables): void
-    {
-        if (!Craft::$app->getView()->doesTemplateExist($template)) {
-            $this->throwException('Template `' . $template . '` does not exist.');
-        }
-
-        try {
-            Craft::$app->getView()->renderTemplate($template, $variables);
-        } catch (Throwable $exception) {
-            $this->throwException($exception);
-        }
-    }
-
-    /**
      * Merges HTML fragments into the DOM.
-     *
-     * @used-by FragmentNode
      */
     public function mergeFragments(string $data, array $options = []): void
     {
@@ -164,6 +124,23 @@ class SseService extends Component
     }
 
     /**
+     * Throws an exception with the appropriate formats for easier debugging.
+     *
+     * @phpstan-return never
+     */
+    public function throwException(Throwable|string $exception): void
+    {
+        Craft::$app->getRequest()->getHeaders()->set('Accept', 'text/html');
+        Craft::$app->getResponse()->format = Response::FORMAT_HTML;
+
+        if ($exception instanceof Throwable) {
+            throw $exception;
+        }
+
+        throw new BadRequestHttpException($exception);
+    }
+
+    /**
      * Returns merged event options with null values removed.
      */
     private function mergeEventOptions(array ...$optionSets): array
@@ -213,22 +190,5 @@ class SseService extends Component
 
         // Start a new output buffer to capture any subsequent inline content.
         ob_start();
-    }
-
-    /**
-     * Throws an exception with the appropriate formats for easier debugging.
-     *
-     * @phpstan-return never
-     */
-    private function throwException(Throwable|string $exception): void
-    {
-        Craft::$app->getRequest()->getHeaders()->set('Accept', 'text/html');
-        Craft::$app->getResponse()->format = Response::FORMAT_HTML;
-
-        if ($exception instanceof Throwable) {
-            throw $exception;
-        }
-
-        throw new BadRequestHttpException($exception);
     }
 }

@@ -61,7 +61,7 @@ class DatastarVariable
      */
     public function runAction(string $route, array $params = []): Response
     {
-        return Datastar::getInstance()->runAction($route, $params);
+        return Datastar::getInstance()->sse->runAction($route, $params);
     }
 
     /**

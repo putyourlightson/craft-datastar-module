@@ -34,11 +34,11 @@ class SignalsModel
     }
 
     /**
-     * Returns the signal value.
+     * Returns the signal value, falling back to a default value.
      */
-    public function get(string $name): mixed
+    public function get(string $name, mixed $default = null): mixed
     {
-        return $this->getNestedValue($name);
+        return $this->getNestedValue($name, $default);
     }
 
     /**
@@ -88,15 +88,15 @@ class SignalsModel
     }
 
     /**
-     * Returns a nested value, or null if it does not exist.
+     * Returns a nested value, falling back to a default value.
      */
-    private function getNestedValue(string $name): mixed
+    private function getNestedValue(string $name, mixed $default = null): mixed
     {
         $parts = explode('.', $name);
         $current = &$this->values;
         foreach ($parts as $part) {
             if (!isset($current[$part])) {
-                return null;
+                return $default;
             }
             $current = &$current[$part];
         }
