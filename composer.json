@@ -1,13 +1,13 @@
 {
   "name": "putyourlightson/craft-datastar-module",
   "description": "A template-driven, reactive hypermedia framework for Craft.",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-beta.9",
   "type": "yii-module",
   "license": "mit",
   "require": {
     "php": "^8.2",
     "craftcms/cms": "^5.0",
-    "starfederation/datastar-php": "1.0.0-beta.6"
+    "starfederation/datastar-php": "1.0.0-beta.7"
   },
   "require-dev": {
     "craftcms/ecs": "dev-main",
