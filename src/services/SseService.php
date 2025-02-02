@@ -8,7 +8,6 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -75,8 +74,6 @@ class SseService extends Component
 
     /**
      * Executes JavaScript in the browser.
-     *
-     * @used-by ExecuteScriptNode
      */
     public function executeScript(string $script, array $options = []): void
     {
@@ -86,6 +83,19 @@ class SseService extends Component
         );
 
         $this->sendSseEvent('executeScript', $script, $options);
+    }
+
+    /**
+     * Redirects the browser by setting the location to the provided URI.
+     */
+    public function location(string $uri, array $options = []): void
+    {
+        $options = $this->mergeEventOptions(
+            Datastar::getInstance()->settings->defaultExecuteScriptOptions,
+            $options,
+        );
+
+        $this->sendSseEvent('location', $uri, $options);
     }
 
     /**

@@ -7,6 +7,8 @@ namespace putyourlightson\datastar\twigextensions;
 
 use putyourlightson\datastar\twigextensions\tokenparsers\ExecuteScriptTokenParser;
 use putyourlightson\datastar\twigextensions\tokenparsers\FragmentTokenParser;
+use putyourlightson\datastar\twigextensions\tokenparsers\LocationTokenParser;
+use putyourlightson\datastar\twigextensions\tokenparsers\SleepTokenParser;
 use putyourlightson\datastar\variables\DatastarVariable;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -31,6 +33,8 @@ class DatastarTwigExtension extends AbstractExtension implements GlobalsInterfac
         return [
             new FragmentTokenParser(),
             new ExecuteScriptTokenParser(),
+            new LocationTokenParser(),
+            new SleepTokenParser(),
         ];
     }
 }

@@ -78,12 +78,18 @@ trait DatastarEventStream
 
     /**
      * Executes JavaScript in the browser.
-     *
-     * @used-by ExecuteScriptNode
      */
     protected function executeScript(string $script, array $options = []): void
     {
         Datastar::getInstance()->sse->executeScript($script, $options);
+    }
+
+    /**
+     * Redirects the browser by setting the location to the provided URI.
+     */
+    protected function location(string $uri, array $options = []): void
+    {
+        Datastar::getInstance()->sse->location($uri, $options);
     }
 
     /**
