@@ -5,9 +5,7 @@
 
 namespace putyourlightson\datastar;
 
-use Craft;
 use putyourlightson\datastar\models\SignalsModel;
-use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\Response;
 
@@ -18,22 +16,7 @@ trait DatastarEventStream
      */
     protected function getStreamedResponse(callable $callable): Response
     {
-        $response = new Response();
-
-        $response->stream = function() use ($callable) {
-            $callable();
-
-            // Return an array to prevent Yii from throwing an exception.
-            return [];
-        };
-
-        $response->format = Response::FORMAT_RAW;
-
-        foreach (ServerSentEventGenerator::headers() as $name => $value) {
-            $response->headers->set($name, $value);
-        }
-
-        return $response;
+        return Datastar::getInstance()->sse->getStreamedResponse($callable);
     }
 
     /**
@@ -41,7 +24,7 @@ trait DatastarEventStream
      */
     protected function getSignals(): SignalsModel
     {
-        return new SignalsModel(ServerSentEventGenerator::readSignals());
+        return Datastar::getInstance()->sse->getSignals();
     }
 
     /**
@@ -93,19 +76,11 @@ trait DatastarEventStream
     }
 
     /**
-     * Renders a template, catching exceptions.
+     * Renders a Datastar template.
      */
-    protected function renderDatastarTemplate(string $template, array $variables): void
+    protected function renderDatastarTemplate(string $template, array $variables = []): void
     {
-        if (!Craft::$app->getView()->doesTemplateExist($template)) {
-            $this->throwException('Template `' . $template . '` does not exist.');
-        }
-
-        try {
-            Craft::$app->getView()->renderTemplate($template, $variables);
-        } catch (Throwable $exception) {
-            $this->throwException($exception);
-        }
+        Datastar::getInstance()->sse->renderDatastarTemplate($template, $variables);
     }
 
     /**

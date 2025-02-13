@@ -8,6 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\models\SignalsModel;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -24,6 +25,37 @@ class SseService extends Component
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
+
+    /**
+     * Returns a streamed response.
+     */
+    public function getStreamedResponse(callable $callable): Response
+    {
+        $response = new Response();
+
+        $response->stream = function() use ($callable) {
+            $callable();
+
+            // Return an array to prevent Yii from throwing an exception.
+            return [];
+        };
+
+        $response->format = Response::FORMAT_RAW;
+
+        foreach (ServerSentEventGenerator::headers() as $name => $value) {
+            $response->headers->set($name, $value);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Returns a signals model populated with signals passed into the request.
+     */
+    public function getSignals(): SignalsModel
+    {
+        return new SignalsModel(ServerSentEventGenerator::readSignals());
+    }
 
     /**
      * Merges HTML fragments into the DOM.
@@ -123,6 +155,36 @@ class SseService extends Component
         }
 
         return $response;
+    }
+
+    /**
+     * Renders a Datastar template.
+     */
+    public function renderDatastarTemplate(string $template, array $variables = []): void
+    {
+        if (!Craft::$app->getView()->doesTemplateExist($template)) {
+            $this->throwException('Template `' . $template . '` does not exist.');
+        }
+
+        $signals = $this->getSignals();
+        $variables = array_merge(
+            [Datastar::getInstance()->settings->signalsVariableName => $signals],
+            $variables,
+        );
+
+        $request = Craft::$app->getRequest();
+
+        if (strtolower($request->getContentType()) === 'application/json') {
+            // Clear out params to prevent them from being processed by controller actions.
+            $request->setQueryParams([]);
+            $request->setBodyParams([]);
+        }
+
+        try {
+            Craft::$app->getView()->renderTemplate($template, $variables);
+        } catch (Throwable $exception) {
+            $this->throwException($exception);
+        }
     }
 
     /**

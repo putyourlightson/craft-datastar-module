@@ -7,7 +7,6 @@ namespace putyourlightson\datastar\controllers;
 
 use Craft;
 use craft\web\Controller;
-use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\DatastarEventStream;
 use putyourlightson\datastar\models\ConfigModel;
 use yii\web\ForbiddenHttpException;
@@ -48,20 +47,7 @@ class DefaultController extends Controller
 
             Craft::$app->getSites()->setCurrentSite($config->siteId);
 
-            $template = $config->template;
-            $signals = $this->getSignals();
-            $variables = array_merge(
-                [Datastar::getInstance()->settings->signalsVariableName => $signals],
-                $config->variables,
-            );
-
-            if (strtolower($this->request->getContentType()) === 'application/json') {
-                // Clear out params to prevent them from being processed by controller actions.
-                $this->request->setQueryParams([]);
-                $this->request->setBodyParams([]);
-            }
-
-            $this->renderDatastarTemplate($template, $variables);
+            $this->renderDatastarTemplate($config->template, $config->variables);
         });
     }
 }
