@@ -30,7 +30,6 @@ class SettingsModel extends Model
      * The fragment options to override the Datastar defaults. Null values will be ignored.
      */
     public array $defaultFragmentOptions = [
-        'settleDuration' => null,
         'useViewTransition' => null,
     ];
 
