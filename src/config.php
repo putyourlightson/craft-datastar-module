@@ -20,7 +20,7 @@
 return [
     '*' => [
         /**
-         * Whether to register the Datastar script on the front-end.
+         * Whether to register the Datastar script on the frontend.
          */
         'registerScript' => true,
 
