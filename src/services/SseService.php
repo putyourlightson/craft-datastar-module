@@ -32,6 +32,11 @@ class SseService extends Component
     public function getStreamedResponse(callable $callable): Response
     {
         $response = new Response();
+        $response->format = Response::FORMAT_RAW;
+
+        foreach (ServerSentEventGenerator::headers() as $name => $value) {
+            $response->headers->set($name, $value);
+        }
 
         $response->stream = function() use ($callable) {
             $callable();
@@ -39,12 +44,6 @@ class SseService extends Component
             // Return an array to prevent Yii from throwing an exception.
             return [];
         };
-
-        $response->format = Response::FORMAT_RAW;
-
-        foreach (ServerSentEventGenerator::headers() as $name => $value) {
-            $response->headers->set($name, $value);
-        }
 
         return $response;
     }
