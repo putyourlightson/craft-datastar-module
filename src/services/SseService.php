@@ -255,6 +255,8 @@ class SseService extends Component
             $this->throwException($message);
         }
 
+        $this->sendHeaders();
+
         // Clean and end all existing output buffers.
         while (ob_get_level() > 0) {
             ob_end_clean();
@@ -266,5 +268,26 @@ class SseService extends Component
 
         // Start a new output buffer to capture any subsequent inline content.
         ob_start();
+    }
+
+    /**
+     * Sends response headers that may have been set by the rendered Twig template.
+     *
+     * @see Response::sendHeaders()
+     */
+    private function sendHeaders(): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
+            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+            $replace = true;
+            foreach ($values as $value) {
+                header("$name: $value", $replace);
+                $replace = false;
+            }
+        }
     }
 }
