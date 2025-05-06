@@ -22,6 +22,11 @@ class SseService extends Component
     private ServerSentEventGenerator|null $sseGenerator = null;
 
     /**
+     * The response data.
+     */
+    private string $responseData = '';
+
+    /**
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
@@ -51,6 +56,14 @@ class SseService extends Component
         }
 
         return $response;
+    }
+
+    /**
+     * Returns the response data.
+     */
+    public function getResponseData(): string
+    {
+        return $this->responseData;
     }
 
     /**
@@ -262,8 +275,8 @@ class SseService extends Component
             ob_end_clean();
         }
 
-        $this->getSseGenerator()->$method(...$args);
-
+        // Call the SSE generator method and append the resulting output to the response data.
+        $this->responseData .= $this->getSseGenerator()->$method(...$args);
         $this->sseMethodInProcess = null;
 
         // Start a new output buffer to capture any subsequent inline content.
