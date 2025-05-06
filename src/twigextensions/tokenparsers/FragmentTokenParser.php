@@ -27,17 +27,15 @@ class FragmentTokenParser extends AbstractTokenParser
         $lineno = $token->getLine();
         $parser = $this->parser;
         $stream = $parser->getStream();
-        $expressionParser = $parser->getExpressionParser();
-
         $nodes = [];
 
         if ($stream->test(Token::NAME_TYPE, 'remove')) {
             $stream->next();
-            $nodes['selector'] = $expressionParser->parseExpression();
+            $nodes['selector'] = $parser->parseExpression();
         } else {
             if ($stream->test(Token::NAME_TYPE, 'with')) {
                 $stream->next();
-                $nodes['options'] = $expressionParser->parseExpression();
+                $nodes['options'] = $parser->parseExpression();
             }
 
             $stream->expect(Token::BLOCK_END_TYPE);

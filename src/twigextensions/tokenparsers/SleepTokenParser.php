@@ -28,10 +28,9 @@ class SleepTokenParser extends AbstractTokenParser
         $lineno = $token->getLine();
         $parser = $this->parser;
         $stream = $parser->getStream();
-        $expressionParser = $parser->getExpressionParser();
 
         $nodes = [];
-        $nodes['duration'] = $expressionParser->parseExpression();
+        $nodes['duration'] = $parser->parseExpression();
 
         if ($stream->test(Token::NAME_TYPE, 'ms')) {
             $stream->next();

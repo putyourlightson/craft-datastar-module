@@ -27,14 +27,13 @@ class LocationTokenParser extends AbstractTokenParser
         $lineno = $token->getLine();
         $parser = $this->parser;
         $stream = $parser->getStream();
-        $expressionParser = $parser->getExpressionParser();
 
         $nodes = [];
-        $nodes['uri'] = $expressionParser->parseExpression();
+        $nodes['uri'] = $parser->parseExpression();
 
         if ($stream->test(Token::NAME_TYPE, 'with')) {
             $stream->next();
-            $nodes['options'] = $expressionParser->parseExpression();
+            $nodes['options'] = $parser->parseExpression();
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
