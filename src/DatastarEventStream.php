@@ -6,15 +6,15 @@
 namespace putyourlightson\datastar;
 
 use putyourlightson\datastar\models\SignalsModel;
+use putyourlightson\datastar\web\StreamedResponse;
 use Throwable;
-use yii\web\Response;
 
 trait DatastarEventStream
 {
     /**
      * Returns a streamed response.
      */
-    protected function getStreamedResponse(callable $callable): Response
+    protected function getStreamedResponse(?callable $callable = null): StreamedResponse
     {
         return Datastar::getInstance()->sse->getStreamedResponse($callable);
     }

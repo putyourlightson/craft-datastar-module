@@ -9,6 +9,13 @@ use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\SignalsModel;
+use putyourlightson\datastar\web\StreamedResponse;
+use starfederation\datastar\events\EventInterface;
+use starfederation\datastar\events\ExecuteScript;
+use starfederation\datastar\events\MergeFragments;
+use starfederation\datastar\events\MergeSignals;
+use starfederation\datastar\events\RemoveFragments;
+use starfederation\datastar\events\RemoveSignals;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -17,14 +24,14 @@ use yii\web\Response;
 class SseService extends Component
 {
     /**
-     * The server sent event generator.
-     */
-    private ServerSentEventGenerator|null $sseGenerator = null;
-
-    /**
      * The response data.
      */
     private string $responseData = '';
+
+    /**
+     * Whether to send SSE events when processing them.
+     */
+    private bool $sendSseEvents = true;
 
     /**
      * The server sent event method currently in process.
@@ -34,12 +41,15 @@ class SseService extends Component
     /**
      * Returns a streamed response.
      */
-    public function getStreamedResponse(callable $callable): Response
+    public function getStreamedResponse(?callable $callable = null): StreamedResponse
     {
-        $response = Craft::$app->getResponse();
+        $response = Datastar::getInstance()->streamedResponse;
+        Craft::$app->set('response', $response);
 
         $response->stream = function() use ($callable) {
-            $callable();
+            if ($callable !== null) {
+                $callable();
+            }
 
             // Return an array to prevent Yii from throwing an exception.
             return [];
@@ -77,74 +87,84 @@ class SseService extends Component
     /**
      * Merges HTML fragments into the DOM.
      */
-    public function mergeFragments(string $data, array $options = []): void
+    public function mergeFragments(string $data, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultFragmentOptions,
             $options,
         );
+        $event = new MergeFragments($data, $options);
 
-        $this->sendSseEvent('mergeFragments', $data, $options);
+        $this->processEvent($event, $send);
     }
 
     /**
      * Removes HTML fragments from the DOM.
      */
-    public function removeFragments(string $selector, array $options = []): void
+    public function removeFragments(string $selector, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultFragmentOptions,
             $options,
         );
+        $event = new RemoveFragments($selector, $options);
 
-        $this->sendSseEvent('removeFragments', $selector, $options);
+        $this->processEvent($event, $send);
     }
 
     /**
      * Merges signals.
      */
-    public function mergeSignals(array $signals, array $options = []): void
+    public function mergeSignals(array $signals, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
             $options,
         );
+        $event = new MergeSignals($signals, $options);
 
-        $this->sendSseEvent('mergeSignals', $signals, $options);
+        $this->processEvent($event, $send);
     }
 
     /**
      * Removes signal paths.
      */
-    public function removeSignals(array $paths, array $options = []): void
+    public function removeSignals(array $paths, array $options = [], bool $send = true): void
     {
-        $this->sendSseEvent('removeSignals', $paths, $options);
+        $event = new RemoveSignals($paths, $options);
+
+        $this->processEvent($event, $send);
     }
 
     /**
      * Executes JavaScript in the browser.
      */
-    public function executeScript(string $script, array $options = []): void
+    public function executeScript(string $script, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
             $options,
         );
 
-        $this->sendSseEvent('executeScript', $script, $options);
+        $event = new ExecuteScript($script, $options);
+
+        $this->processEvent($event, $send);
     }
 
     /**
      * Redirects the browser by setting the location to the provided URI.
      */
-    public function location(string $uri, array $options = []): void
+    public function location(string $uri, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
             $options,
         );
 
-        $this->sendSseEvent('location', $uri, $options);
+        $script = "setTimeout(() => window.location = '$uri')";
+        $event = new ExecuteScript($script, $options);
+
+        $this->processEvent($event, $send);
     }
 
     /**
@@ -177,7 +197,7 @@ class SseService extends Component
     /**
      * Renders a Datastar template.
      */
-    public function renderDatastarTemplate(string $template, array $variables = []): void
+    public function renderDatastarTemplate(string $template, array $variables = [], bool $sendSseEvents = true): void
     {
         if (!Craft::$app->getView()->doesTemplateExist($template)) {
             $this->throwException('Template `' . $template . '` does not exist.');
@@ -188,6 +208,9 @@ class SseService extends Component
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $variables,
         );
+
+        $originalSendSseEvents = $this->sendSseEvents;
+        $this->sendSseEvents = $sendSseEvents;
 
         $request = Craft::$app->getRequest();
 
@@ -202,12 +225,14 @@ class SseService extends Component
         } catch (Throwable $exception) {
             $this->throwException($exception);
         }
+
+        $this->sendSseEvents = $originalSendSseEvents;
     }
 
     /**
      * Sets the server sent event method currently in process.
      */
-    public function setSseInProcess(string $method): void
+    public function setSseInProcess(?string $method): void
     {
         $this->sseMethodInProcess = $method;
     }
@@ -244,63 +269,73 @@ class SseService extends Component
     }
 
     /**
-     * Returns a server sent event generator.
+     * Processes an event.
      */
-    private function getSseGenerator(): ServerSentEventGenerator
+    private function processEvent(EventInterface $event, bool $send): void
     {
-        if ($this->sseGenerator === null) {
-            $this->sseGenerator = new ServerSentEventGenerator();
+        $this->verifySseMethodInProcess($event);
+
+        Datastar::getInstance()->streamedResponse->resendHeaders();
+
+        $shouldSend = $this->sendSseEvents && $send;
+
+        if ($shouldSend) {
+            // Clean and end all existing output buffers.
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
         }
 
-        return $this->sseGenerator;
+        $output = $event->getOutput();
+
+        if ($shouldSend) {
+            echo $output;
+
+            if (ob_get_contents()) {
+                ob_end_flush();
+            }
+            flush();
+        }
+
+        // Append the resulting output to the response data.
+        $this->responseData .= $event->getOutput();
+
+        if ($shouldSend) {
+            // Start a new output buffer to capture any subsequent inline content.
+            ob_start();
+        }
+
+        $this->setSseInProcess(null);
     }
 
     /**
-     * Sends an SSE event with arguments and cleans output buffers.
+     * Verifies that another SSE method is not already in process.
      */
-    private function sendSseEvent(string $method, ...$args): void
+    private function verifySseMethodInProcess(EventInterface $event): void
     {
-        if ($this->sseMethodInProcess && $this->sseMethodInProcess !== $method) {
+        if ($this->sseMethodInProcess === null) {
+            return;
+        }
+
+        $sseMethods = [
+            MergeFragments::class => 'mergeFragments',
+            RemoveFragments::class => 'removeFragments',
+            MergeSignals::class => 'mergeSignals',
+            RemoveSignals::class => 'removeSignals',
+            ExecuteScript::class => 'executeScript',
+        ];
+
+        $method = $sseMethods[$event::class] ?? null;
+        if ($method === null) {
+            return;
+        }
+
+        if ($method !== $this->sseMethodInProcess) {
             $message = 'The SSE method `' . $method . '` cannot be called when `' . $this->sseMethodInProcess . '` is already in process.';
             if (in_array($method, ['mergeSignals', 'removeSignals'])) {
                 $message .= ' Ensure that you are not setting or removing signals inside `{% fragment %}` or `{% executescript %}` tags.';
             }
             $this->throwException($message);
-        }
-
-        $this->sendHeaders();
-
-        // Clean and end all existing output buffers.
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
-
-        // Call the SSE generator method and append the resulting output to the response data.
-        $this->responseData .= $this->getSseGenerator()->$method(...$args);
-        $this->sseMethodInProcess = null;
-
-        // Start a new output buffer to capture any subsequent inline content.
-        ob_start();
-    }
-
-    /**
-     * Sends response headers that may have been set by the rendered Twig template.
-     *
-     * @see Response::sendHeaders()
-     */
-    private function sendHeaders(): void
-    {
-        if (headers_sent()) {
-            return;
-        }
-
-        foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
-            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            $replace = true;
-            foreach ($values as $value) {
-                header("$name: $value", $replace);
-                $replace = false;
-            }
         }
     }
 }

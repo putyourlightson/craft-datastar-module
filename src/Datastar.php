@@ -13,11 +13,13 @@ use putyourlightson\datastar\models\SettingsModel;
 use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
+use putyourlightson\datastar\web\StreamedResponse;
 use yii\base\Event;
 use yii\base\Module;
 
 /**
  * @property-read SseService $sse
+ * @property-read StreamedResponse $streamedResponse
  * @property-read SettingsModel $settings
  */
 class Datastar extends Module
@@ -85,6 +87,7 @@ class Datastar extends Module
     {
         $this->setComponents([
             'sse' => SseService::class,
+            'streamedResponse' => StreamedResponse::class,
         ]);
     }
 
