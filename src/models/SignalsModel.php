@@ -56,7 +56,7 @@ class SignalsModel
     {
         $this->setNestedValue($name, $value);
 
-        Datastar::getInstance()->sse->mergeSignals($this->getNestedArrayValue($name, $value));
+        Datastar::getInstance()->sse->patchSignals($this->getNestedArrayValue($name, $value));
 
         return $this;
     }
@@ -70,7 +70,7 @@ class SignalsModel
             $this->values[$name] = $value;
         }
 
-        Datastar::getInstance()->sse->mergeSignals($values);
+        Datastar::getInstance()->sse->patchSignals($values);
 
         return $this;
     }
@@ -80,9 +80,7 @@ class SignalsModel
      */
     public function remove(string $name): static
     {
-        $this->removeNestedValue($name);
-
-        Datastar::getInstance()->sse->removeSignals([$name]);
+        $this->set($name, null);
 
         return $this;
     }
@@ -118,25 +116,6 @@ class SignalsModel
             $current = &$current[$part];
         }
         $current = $value;
-    }
-
-    /**
-     * Removes a nested signal value while supporting dot notation in the name.
-     */
-    private function removeNestedValue(string $name): void
-    {
-        $parts = explode('.', $name);
-        $part = reset($parts);
-        $current = &$this->values;
-        $parent = &$current;
-        foreach ($parts as $part) {
-            if (!isset($current[$part])) {
-                return;
-            }
-            $parent = &$current;
-            $current = &$current[$part];
-        }
-        unset($parent[$part]);
     }
 
     /**

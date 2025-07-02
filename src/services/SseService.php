@@ -12,10 +12,10 @@ use putyourlightson\datastar\models\SignalsModel;
 use putyourlightson\datastar\web\StreamedResponse;
 use starfederation\datastar\events\EventInterface;
 use starfederation\datastar\events\ExecuteScript;
-use starfederation\datastar\events\MergeFragments;
-use starfederation\datastar\events\MergeSignals;
-use starfederation\datastar\events\RemoveFragments;
-use starfederation\datastar\events\RemoveSignals;
+use starfederation\datastar\events\Location;
+use starfederation\datastar\events\PatchElements;
+use starfederation\datastar\events\PatchSignals;
+use starfederation\datastar\events\RemoveElements;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
@@ -85,53 +85,44 @@ class SseService extends Component
     }
 
     /**
-     * Merges HTML fragments into the DOM.
+     * Patches elements into the DOM.
      */
-    public function mergeFragments(string $data, array $options = [], bool $send = true): void
+    public function patchElements(string $data, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
-            Datastar::getInstance()->settings->defaultFragmentOptions,
+            Datastar::getInstance()->settings->defaultElementOptions,
             $options,
         );
-        $event = new MergeFragments($data, $options);
+        $event = new PatchElements($data, $options);
 
         $this->processEvent($event, $send);
     }
 
     /**
-     * Removes HTML fragments from the DOM.
+     * Removes elements from the DOM.
      */
-    public function removeFragments(string $selector, array $options = [], bool $send = true): void
+    public function removeElements(string $selector, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
-            Datastar::getInstance()->settings->defaultFragmentOptions,
+            Datastar::getInstance()->settings->defaultElementOptions,
             $options,
+            ['mode' => 'remove']
         );
-        $event = new RemoveFragments($selector, $options);
+        $event = new PatchElements($selector, $options);
 
         $this->processEvent($event, $send);
     }
 
     /**
-     * Merges signals.
+     * Patches signals.
      */
-    public function mergeSignals(array $signals, array $options = [], bool $send = true): void
+    public function patchSignals(array $signals, array $options = [], bool $send = true): void
     {
         $options = $this->mergeEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
             $options,
         );
-        $event = new MergeSignals($signals, $options);
-
-        $this->processEvent($event, $send);
-    }
-
-    /**
-     * Removes signal paths.
-     */
-    public function removeSignals(array $paths, array $options = [], bool $send = true): void
-    {
-        $event = new RemoveSignals($paths, $options);
+        $event = new PatchSignals($signals, $options);
 
         $this->processEvent($event, $send);
     }
@@ -161,8 +152,7 @@ class SseService extends Component
             $options,
         );
 
-        $script = "setTimeout(() => window.location = '$uri')";
-        $event = new ExecuteScript($script, $options);
+        $event = new Location($uri, $options);
 
         $this->processEvent($event, $send);
     }
@@ -318,10 +308,9 @@ class SseService extends Component
         }
 
         $sseMethods = [
-            MergeFragments::class => 'mergeFragments',
-            RemoveFragments::class => 'removeFragments',
-            MergeSignals::class => 'mergeSignals',
-            RemoveSignals::class => 'removeSignals',
+            PatchElements::class => 'patchElements',
+            RemoveElements::class => 'removeElements',
+            PatchSignals::class => 'patchSignals',
             ExecuteScript::class => 'executeScript',
         ];
 

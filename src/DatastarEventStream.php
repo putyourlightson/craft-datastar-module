@@ -28,35 +28,27 @@ trait DatastarEventStream
     }
 
     /**
-     * Merges HTML fragments into the DOM.
+     * Patches elements into the DOM.
      */
-    protected function mergeFragments(string $data, array $options = []): void
+    protected function patchElements(string $data, array $options = []): void
     {
-        Datastar::getInstance()->sse->mergeFragments($data, $options);
+        Datastar::getInstance()->sse->patchElements($data, $options);
     }
 
     /**
-     * Removes HTML fragments from the DOM.
+     * Removes elements from the DOM.
      */
-    protected function removeFragments(string $selector, array $options = []): void
+    protected function removeElements(string $selector, array $options = []): void
     {
-        Datastar::getInstance()->sse->removeFragments($selector, $options);
+        Datastar::getInstance()->sse->removeElements($selector, $options);
     }
 
     /**
-     * Merges signals.
+     * Patches signals.
      */
-    protected function mergeSignals(array $signals, array $options = []): void
+    protected function patchSignals(array $signals, array $options = []): void
     {
-        Datastar::getInstance()->sse->mergeSignals($signals, $options);
-    }
-
-    /**
-     * Removes signal paths.
-     */
-    protected function removeSignals(array $paths, array $options = []): void
-    {
-        Datastar::getInstance()->sse->removeSignals($paths, $options);
+        Datastar::getInstance()->sse->patchSignals($signals, $options);
     }
 
     /**

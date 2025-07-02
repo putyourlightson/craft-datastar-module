@@ -38,15 +38,15 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $nodes['body'] = $parser->subparse([$this, 'decideExecuteScriptEnd'], true);
+        $nodes['body'] = $parser->subparse([$this, 'decideEnd'], true);
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
         return new ExecuteScriptNode($nodes, [], $lineno, $this->getTag());
     }
 
-    public function decideExecuteScriptEnd(Token $token): bool
+    public function decideEnd(Token $token): bool
     {
-        return $token->test('endexecutescript');
+        return $token->test('end' . $this->getTag());
     }
 }

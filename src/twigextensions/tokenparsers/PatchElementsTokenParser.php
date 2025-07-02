@@ -5,24 +5,24 @@
 
 namespace putyourlightson\datastar\twigextensions\tokenparsers;
 
-use putyourlightson\datastar\twigextensions\nodes\FragmentNode;
+use putyourlightson\datastar\twigextensions\nodes\PatchElementsNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-class FragmentTokenParser extends AbstractTokenParser
+class PatchElementsTokenParser extends AbstractTokenParser
 {
     /**
      * @inheritdoc
      */
     public function getTag(): string
     {
-        return 'fragment';
+        return 'patchelements';
     }
 
     /**
      * @inheritdoc
      */
-    public function parse(Token $token): FragmentNode
+    public function parse(Token $token): PatchElementsNode
     {
         $lineno = $token->getLine();
         $parser = $this->parser;
@@ -41,16 +41,16 @@ class FragmentTokenParser extends AbstractTokenParser
             }
 
             $stream->expect(Token::BLOCK_END_TYPE);
-            $nodes['body'] = $parser->subparse([$this, 'decideFragmentEnd'], true);
+            $nodes['body'] = $parser->subparse([$this, 'decideEnd'], true);
         }
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new FragmentNode($nodes, [], $lineno, $this->getTag());
+        return new PatchElementsNode($nodes, [], $lineno, $this->getTag());
     }
 
-    public function decideFragmentEnd(Token $token): bool
+    public function decideEnd(Token $token): bool
     {
-        return $token->test('endfragment');
+        return $token->test('end' . $this->getTag());
     }
 }

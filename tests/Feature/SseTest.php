@@ -13,6 +13,6 @@ beforeEach(function() {
 });
 
 test('Test that calling an SSE method when another one is in process throws an exception', function() {
-    Datastar::getInstance()->sse->setSseInProcess('mergeFragments');
-    Datastar::getInstance()->sse->mergeSignals([]);
+    Datastar::getInstance()->sse->setSseInProcess('patchElements');
+    Datastar::getInstance()->sse->patchSignals([]);
 })->throws(BadRequestHttpException::class);
