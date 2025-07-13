@@ -6,18 +6,16 @@
 namespace putyourlightson\datastar;
 
 use Craft;
-use nystudio107\autocomplete\events\DefineGeneratorValuesEvent;
-use nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
-use putyourlightson\datastar\models\SignalsModel;
+use putyourlightson\datastar\services\RequestService;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use putyourlightson\datastar\web\StreamedResponse;
-use yii\base\Event;
 use yii\base\Module;
 
 /**
+ * @property-read RequestService $request
  * @property-read SseService $sse
  * @property-read StreamedResponse $streamedResponse
  * @property-read SettingsModel $settings
@@ -71,7 +69,6 @@ class Datastar extends Module
         $this->registerComponents();
         $this->registerTwigExtension();
         $this->registerScript();
-        $this->registerAutocompleteEvent();
     }
 
     public function getSettings(): SettingsModel
@@ -86,6 +83,7 @@ class Datastar extends Module
     private function registerComponents(): void
     {
         $this->setComponents([
+            'request' => RequestService::class,
             'sse' => SseService::class,
             'streamedResponse' => StreamedResponse::class,
         ]);
@@ -107,19 +105,5 @@ class Datastar extends Module
         // Register the JS file explicitly so that it will be output when using template caching.
         $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
         Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
-    }
-
-    private function registerAutocompleteEvent(): void
-    {
-        if (!class_exists('nystudio107\autocomplete\generators\AutocompleteTwigExtensionGenerator')) {
-            return;
-        }
-
-        Event::on(AutocompleteTwigExtensionGenerator::class,
-            AutocompleteTwigExtensionGenerator::EVENT_BEFORE_GENERATE,
-            function(DefineGeneratorValuesEvent $event) {
-                $event->values[$this->settings->signalsVariableName] = 'new \\' . SignalsModel::class . '()';
-            }
-        );
     }
 }
