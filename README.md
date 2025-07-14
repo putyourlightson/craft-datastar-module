@@ -50,11 +50,11 @@ Learn more and read the documentation at [putyourlightson.com/plugins/datastar Â
 
 ## License
 
-This plugin is licensed for free under the MIT License.
+This module is licensed for free under the MIT License.
 
 ## Requirements
 
-This plugin requires [Craft CMS](https://craftcms.com/) 5.0.0 or later.
+This module requires [Craft CMS](https://craftcms.com/) 5.4.0 or later.
 
 ## Installation
 

@@ -46,7 +46,7 @@ class PatchElementsTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new PatchElementsNode($nodes, [], $lineno, $this->getTag());
+        return new PatchElementsNode($nodes, [], $lineno);
     }
 
     public function decideEnd(Token $token): bool

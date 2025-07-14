@@ -39,6 +39,6 @@ class PatchSignalsTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new PatchSignalsNode($nodes, [], $lineno, $this->getTag());
+        return new PatchSignalsNode($nodes, [], $lineno);
     }
 }
