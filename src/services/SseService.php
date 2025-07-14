@@ -8,6 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
+use putyourlightson\datastar\helpers\RequestHelper;
 use putyourlightson\datastar\web\StreamedResponse;
 use starfederation\datastar\events\EventInterface;
 use starfederation\datastar\events\ExecuteScript;
@@ -157,7 +158,7 @@ class SseService extends Component
             $this->throwException('Template `' . $template . '` does not exist.');
         }
 
-        $signals = Datastar::getInstance()->request->getSignals();
+        $signals = RequestHelper::readSignals();
         $variables = array_merge(
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $variables,

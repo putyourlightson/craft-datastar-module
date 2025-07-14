@@ -5,8 +5,8 @@
 
 namespace putyourlightson\datastar\variables;
 
-use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\ActionHelper;
+use putyourlightson\datastar\helpers\RequestHelper;
 use yii\web\Response;
 
 class DatastarVariable
@@ -52,11 +52,11 @@ class DatastarVariable
     }
 
     /**
-     * Returns the signals passed into the request.
+     * Reads and returns the signals passed into the request.
      */
-    public function getSignals(): array
+    public function readSignals(): array
     {
-        return Datastar::getInstance()->request->getSignals();
+        return RequestHelper::readSignals();
     }
 
     /**
@@ -64,6 +64,6 @@ class DatastarVariable
      */
     public function runAction(string $route, array $params = []): Response
     {
-        return Datastar::getInstance()->request->runAction($route, $params);
+        return RequestHelper::runAction($route, $params);
     }
 }

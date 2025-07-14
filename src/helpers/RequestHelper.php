@@ -3,19 +3,18 @@
  * @copyright Copyright (c) PutYourLightsOn
  */
 
-namespace putyourlightson\datastar\services;
+namespace putyourlightson\datastar\helpers;
 
 use Craft;
-use craft\base\Component;
 use starfederation\datastar\ServerSentEventGenerator;
 use yii\web\Response;
 
-class RequestService extends Component
+class RequestHelper
 {
     /**
-     * Returns the signals passed into the request.
+     * Reads and returns the signals passed into the request.
      */
-    public function getSignals(): array
+    public static function readSignals(): array
     {
         return ServerSentEventGenerator::readSignals();
     }
@@ -23,7 +22,7 @@ class RequestService extends Component
     /**
      * Runs an action and returns the response.
      */
-    public function runAction(string $route, array $params = []): Response
+    public static function runAction(string $route, array $params = []): Response
     {
         $request = Craft::$app->getRequest();
         $request->getHeaders()->set('Accept', 'application/json');

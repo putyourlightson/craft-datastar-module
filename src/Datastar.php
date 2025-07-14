@@ -8,14 +8,12 @@ namespace putyourlightson\datastar;
 use Craft;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
-use putyourlightson\datastar\services\RequestService;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use putyourlightson\datastar\web\StreamedResponse;
 use yii\base\Module;
 
 /**
- * @property-read RequestService $request
  * @property-read SseService $sse
  * @property-read StreamedResponse $streamedResponse
  * @property-read SettingsModel $settings
@@ -83,7 +81,6 @@ class Datastar extends Module
     private function registerComponents(): void
     {
         $this->setComponents([
-            'request' => RequestService::class,
             'sse' => SseService::class,
             'streamedResponse' => StreamedResponse::class,
         ]);

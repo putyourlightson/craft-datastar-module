@@ -5,6 +5,7 @@
 
 namespace putyourlightson\datastar;
 
+use putyourlightson\datastar\helpers\RequestHelper;
 use putyourlightson\datastar\web\StreamedResponse;
 use Throwable;
 
@@ -19,11 +20,11 @@ trait DatastarEventStream
     }
 
     /**
-     * Returns the signals passed into the request.
+     * Reads and returns the signals passed into the request.
      */
-    protected function getSignals(): array
+    protected function readSignals(): array
     {
-        return Datastar::getInstance()->request->getSignals();
+        return RequestHelper::readSignals();
     }
 
     /**
