@@ -100,7 +100,7 @@ class SseService extends Component
             $options,
             ['mode' => 'remove']
         );
-        $event = new PatchElements($selector, $options);
+        $event = new RemoveElements($selector, $options);
 
         $this->processEvent($event, $send);
     }
