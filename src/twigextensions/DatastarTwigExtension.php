@@ -9,6 +9,7 @@ use putyourlightson\datastar\twigextensions\tokenparsers\ExecuteScriptTokenParse
 use putyourlightson\datastar\twigextensions\tokenparsers\LocationTokenParser;
 use putyourlightson\datastar\twigextensions\tokenparsers\PatchElementsTokenParser;
 use putyourlightson\datastar\twigextensions\tokenparsers\PatchSignalsTokenParser;
+use putyourlightson\datastar\twigextensions\tokenparsers\RemoveElementsTokenParser;
 use putyourlightson\datastar\twigextensions\tokenparsers\SleepTokenParser;
 use putyourlightson\datastar\variables\DatastarVariable;
 use Twig\Extension\AbstractExtension;
@@ -33,6 +34,7 @@ class DatastarTwigExtension extends AbstractExtension implements GlobalsInterfac
     {
         return [
             new PatchElementsTokenParser(),
+            new RemoveElementsTokenParser(),
             new PatchSignalsTokenParser(),
             new ExecuteScriptTokenParser(),
             new LocationTokenParser(),

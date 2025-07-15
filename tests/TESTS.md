@@ -19,6 +19,7 @@ _Tests the architecture of the plugin._
 
 _Tests the SSE service._
 
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test remove elements tag.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that calling an SSE method when another one is in process throws an exception.  
 
 ### [Variable](Feature/VariableTest.php)

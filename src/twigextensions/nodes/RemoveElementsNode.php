@@ -10,20 +10,20 @@ use putyourlightson\datastar\services\SseService;
 use Twig\Compiler;
 use Twig\Node\Node;
 
-class PatchSignalsNode extends Node
+class RemoveElementsNode extends Node
 {
     /**
-     * @uses SseService::patchSignals()
+     * @uses SseService::removeElements()
      */
     public function compile(Compiler $compiler): void
     {
-        $signals = $this->getNode('signals');
+        $selector = $this->getNode('selector');
         $options = $this->hasNode('options') ? $this->getNode('options') : null;
 
         $compiler
             ->addDebugInfo($this)
-            ->write("\$signals = ")
-            ->subcompile($signals)
+            ->write("\$selector = ")
+            ->subcompile($selector)
             ->raw(";\n")
             ->write("\$options = ");
 
@@ -35,6 +35,6 @@ class PatchSignalsNode extends Node
 
         $compiler
             ->raw(";\n")
-            ->write(Datastar::class . "::getInstance()->sse->patchSignals(\$signals, \$options);\n");
+            ->write(Datastar::class . "::getInstance()->sse->removeElements(\$selector, \$options);\n");
     }
 }

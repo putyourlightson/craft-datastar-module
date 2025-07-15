@@ -24,6 +24,13 @@ test('Test that elements output in templates are patched', function(string $temp
     'mixed',
 ]);
 
+test('Test remove elements tag', function() {
+    Datastar::getInstance()->sse->renderDatastarTemplate('remove', [], false);
+
+    expect(Datastar::getInstance()->sse->getResponseData())
+        ->toContain('data: mode remove');
+});
+
 test('Test that calling an SSE method when another one is in process throws an exception', function() {
     Datastar::getInstance()->sse->setSseInProcess('patchElements');
     Datastar::getInstance()->sse->patchSignals([]);
