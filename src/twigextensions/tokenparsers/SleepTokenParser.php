@@ -40,6 +40,6 @@ class SleepTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        return new SleepNode($nodes, [], $lineno, $this->getTag());
+        return new SleepNode($nodes, [], $lineno);
     }
 }

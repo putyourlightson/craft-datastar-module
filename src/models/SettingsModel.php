@@ -27,9 +27,9 @@ class SettingsModel extends Model
     ];
 
     /**
-     * The fragment options to override the Datastar defaults. Null values will be ignored.
+     * The element options to override the Datastar defaults. Null values will be ignored.
      */
-    public array $defaultFragmentOptions = [
+    public array $defaultElementOptions = [
         'useViewTransition' => null,
     ];
 

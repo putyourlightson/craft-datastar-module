@@ -27,11 +27,11 @@ composer require markhuot/craft-pest-core:^2.0.0 --dev
 Then run the following command from the root of your project.
 
 ```shell
-php php vendor/bin/pest --configuration=vendor/putyourlightson/craft-datastar-module/phpunit.xml --test-directory=vendor/putyourlightson/craft-datastar-module/tests
+php vendor/bin/pest vendor/putyourlightson/craft-datastar-module --test-directory=vendor/putyourlightson/craft-datastar-module/tests
 ```
 
 Or to run a specific test.
 
 ```shell
-php php vendor/bin/pest --configuration=vendor/putyourlightson/craft-datastar-module/phpunit.xml --test-directory=vendor/putyourlightson/craft-datastar-module/tests --filter=StoreTest
+php php vendor/bin/pest vendor/putyourlightson/craft-datastar-module --test-directory=vendor/putyourlightson/craft-datastar-module/tests --filter=sse
 ```

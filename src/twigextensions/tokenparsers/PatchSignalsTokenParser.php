@@ -5,24 +5,24 @@
 
 namespace putyourlightson\datastar\twigextensions\tokenparsers;
 
-use putyourlightson\datastar\twigextensions\nodes\ExecuteScriptNode;
+use putyourlightson\datastar\twigextensions\nodes\PatchSignalsNode;
 use Twig\Token;
 use Twig\TokenParser\AbstractTokenParser;
 
-class ExecuteScriptTokenParser extends AbstractTokenParser
+class PatchSignalsTokenParser extends AbstractTokenParser
 {
     /**
      * @inheritdoc
      */
     public function getTag(): string
     {
-        return 'executescript';
+        return 'patchsignals';
     }
 
     /**
      * @inheritdoc
      */
-    public function parse(Token $token): ExecuteScriptNode
+    public function parse(Token $token): PatchSignalsNode
     {
         $lineno = $token->getLine();
         $parser = $this->parser;
@@ -30,6 +30,7 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
         $expressionParser = $parser->getExpressionParser();
 
         $nodes = [];
+        $nodes['signals'] = $expressionParser->parseExpression();
 
         if ($stream->test(Token::NAME_TYPE, 'with')) {
             $stream->next();
@@ -38,15 +39,6 @@ class ExecuteScriptTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $nodes['body'] = $parser->subparse([$this, 'decideEnd'], true);
-
-        $stream->expect(Token::BLOCK_END_TYPE);
-
-        return new ExecuteScriptNode($nodes, [], $lineno);
-    }
-
-    public function decideEnd(Token $token): bool
-    {
-        return $token->test('end' . $this->getTag());
+        return new PatchSignalsNode($nodes, [], $lineno);
     }
 }
