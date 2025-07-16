@@ -98,7 +98,6 @@ class SseService extends Component
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
             $options,
-            ['mode' => 'remove']
         );
         $event = new RemoveElements($selector, $options);
 

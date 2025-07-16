@@ -4,10 +4,11 @@ namespace putyourlightson\datastar\assets;
 
 use Craft;
 use craft\web\AssetBundle;
-use starfederation\datastar\Consts;
 
 class DatastarAssetBundle extends AssetBundle
 {
+    public const VERSION = '1.0.0-RC.2';
+
     /**
      * @inheritdoc
      */
@@ -24,7 +25,7 @@ class DatastarAssetBundle extends AssetBundle
     /**
      * @inheritdoc
      */
-    public $sourcePath = '@putyourlightson/datastar/resources/lib/datastar/' . Consts::VERSION;
+    public $sourcePath = '@putyourlightson/datastar/resources/lib/datastar/' . self::VERSION;
 
     /**
      * @inheritdoc
