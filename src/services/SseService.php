@@ -34,6 +34,11 @@ class SseService extends Component
     private bool $sendSseEvents = true;
 
     /**
+     * Server sent event options to send.
+     */
+    private array $sseEventOptions = [];
+
+    /**
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
@@ -83,6 +88,7 @@ class SseService extends Component
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
+            $this->sseEventOptions,
             $options,
         );
         $event = new PatchElements($data, $options);
@@ -97,6 +103,7 @@ class SseService extends Component
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
+            $this->sseEventOptions,
             $options,
         );
         $event = new RemoveElements($selector, $options);
@@ -111,6 +118,7 @@ class SseService extends Component
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
+            $this->sseEventOptions,
             $options,
         );
         $event = new PatchSignals($signals, $options);
@@ -125,6 +133,7 @@ class SseService extends Component
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
+            $this->sseEventOptions,
             $options,
         );
 
@@ -140,6 +149,7 @@ class SseService extends Component
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
+            $this->sseEventOptions,
             $options,
         );
 
@@ -188,9 +198,17 @@ class SseService extends Component
     }
 
     /**
+     * Sets server sent event options.
+     */
+    public function setSseEventOptions(array $options): void
+    {
+        $this->sseEventOptions = $options;
+    }
+
+    /**
      * Sets the server sent event method currently in process.
      */
-    public function setSseInProcess(?string $method): void
+    public function setSseMethodInProcess(?string $method): void
     {
         $this->sseMethodInProcess = $method;
     }
@@ -263,7 +281,7 @@ class SseService extends Component
             ob_start();
         }
 
-        $this->setSseInProcess(null);
+        $this->setSseMethodInProcess(null);
     }
 
     /**

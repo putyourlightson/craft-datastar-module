@@ -32,6 +32,6 @@ test('Test remove elements tag', function() {
 });
 
 test('Test that calling an SSE method when another one is in process throws an exception', function() {
-    Datastar::getInstance()->sse->setSseInProcess('patchElements');
+    Datastar::getInstance()->sse->setSseMethodInProcess('patchElements');
     Datastar::getInstance()->sse->patchSignals([]);
 })->throws(BadRequestHttpException::class);

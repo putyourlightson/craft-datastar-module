@@ -14,7 +14,7 @@ trait CompileWithOptionsTrait
     /**
      * Compiles a node with options.
      *
-     * @uses SseService::setSseInProcess()
+     * @uses SseService::setSseMethodInProcess()
      */
     public function compileWithOptions(Compiler $compiler, string $method): void
     {
@@ -22,7 +22,7 @@ trait CompileWithOptionsTrait
 
         $compiler
             ->addDebugInfo($this)
-            ->write(Datastar::class . "::getInstance()->sse->setSseInProcess('$method');\n")
+            ->write(Datastar::class . "::getInstance()->sse->setSseMethodInProcess('$method');\n")
             ->write("ob_start();\n")
             ->subcompile($this->getNode('body'))
             ->write("\$content = ob_get_clean();\n")

@@ -5,6 +5,7 @@
 
 namespace putyourlightson\datastar\variables;
 
+use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\ActionHelper;
 use putyourlightson\datastar\helpers\RequestHelper;
 use yii\web\Response;
@@ -65,5 +66,13 @@ class DatastarVariable
     public function runAction(string $route, array $params = []): Response
     {
         return RequestHelper::runAction($route, $params);
+    }
+
+    /**
+     * Sets server sent event options.
+     */
+    public function setSseEventOptions(array $options = []): void
+    {
+        Datastar::getInstance()->sse->setSseEventOptions($options);
     }
 }
