@@ -6,19 +6,10 @@
 namespace putyourlightson\datastar;
 
 use putyourlightson\datastar\helpers\RequestHelper;
-use putyourlightson\datastar\web\StreamedResponse;
 use Throwable;
 
 trait DatastarEventStream
 {
-    /**
-     * Returns a streamed response.
-     */
-    protected function getStreamedResponse(?callable $callable = null): StreamedResponse
-    {
-        return Datastar::getInstance()->sse->getStreamedResponse($callable);
-    }
-
     /**
      * Reads and returns the signals passed into the request.
      */
@@ -68,19 +59,6 @@ trait DatastarEventStream
     }
 
     /**
-     * Processes a route.
-     */
-    protected function processRoute(string $route, array $params = []): void
-    {
-        if (str_starts_with($route, 'actions/')) {
-            $route = substr($route, strlen('actions/'));
-            RequestHelper::runAction($route, $params);
-        } else {
-            Datastar::getInstance()->sse->renderDatastarTemplate($route, $params);
-        }
-    }
-
-    /**
      * Renders a Datastar template.
      */
     protected function renderDatastarTemplate(string $template, array $variables = []): void
@@ -93,7 +71,7 @@ trait DatastarEventStream
      *
      * @phpstan-return never
      */
-    public function throwException(Throwable|string $exception): void
+    protected function throwException(Throwable|string $exception): void
     {
         Datastar::getInstance()->sse->throwException($exception);
     }
