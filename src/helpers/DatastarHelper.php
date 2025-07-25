@@ -12,14 +12,14 @@ use craft\web\Request;
 use putyourlightson\datastar\models\ConfigModel;
 use Twig\Error\SyntaxError;
 
-class ActionHelper
+class DatastarHelper
 {
     /**
      * Returns a Datastar action.
      */
-    public static function getAction(string $method, string $template, array $variables = [], array $options = []): string
+    public static function getAction(string $method, string $route, array $params = [], array $options = []): string
     {
-        $url = self::getUrl($template, $variables);
+        $url = self::getUrl($route, $params);
         $args = ["'$url'"];
 
         if ($method !== 'get') {
@@ -40,12 +40,12 @@ class ActionHelper
     /**
      * Returns a Datastar URL endpoint.
      */
-    public static function getUrl(string $template, array $variables = []): string
+    public static function getUrl(string $route, array $params = []): string
     {
         $config = new ConfigModel([
             'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
-            'template' => $template,
-            'variables' => $variables,
+            'route' => $route,
+            'params' => $params,
         ]);
 
         if (!$config->validate()) {

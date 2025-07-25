@@ -68,6 +68,19 @@ trait DatastarEventStream
     }
 
     /**
+     * Processes a route.
+     */
+    protected function processRoute(string $route, array $params = []): void
+    {
+        if (str_starts_with($route, 'actions/')) {
+            $route = substr($route, strlen('actions/'));
+            RequestHelper::runAction($route, $params);
+        } else {
+            Datastar::getInstance()->sse->renderDatastarTemplate($route, $params);
+        }
+    }
+
+    /**
      * Renders a Datastar template.
      */
     protected function renderDatastarTemplate(string $template, array $variables = []): void

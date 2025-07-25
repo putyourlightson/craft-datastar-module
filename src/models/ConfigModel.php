@@ -13,8 +13,8 @@ use putyourlightson\datastar\Datastar;
 class ConfigModel extends Model
 {
     public ?int $siteId = null;
-    public string $template = '';
-    public array $variables = [];
+    public string $route = '';
+    public array $params = [];
 
     /**
      * Creates a new instance from a hashed config string.
@@ -30,26 +30,26 @@ class ConfigModel extends Model
     }
 
     /**
-     * Validates that none of the variables are objects, recursively.
+     * Validates that none of the params are objects, recursively.
      *
-     * @uses validateVariables()
+     * @uses validateParams()
      */
     protected function defineRules(): array
     {
         return [
-            [['siteId', 'template'], 'required'],
+            [['siteId', 'route'], 'required'],
             [['siteId'], 'integer'],
-            [['template'], 'string'],
-            [['variables'], 'validateVariables'],
+            [['route'], 'string'],
+            [['params'], 'validateParams'],
         ];
     }
 
     /**
-     * Validates the variables.
+     * Validates the params.
      */
-    public function validateVariables(): bool
+    public function validateParams(): bool
     {
-        return $this->validateVariablesRecursively($this->variables);
+        return $this->validateParamsRecursively($this->params);
     }
 
     /**
@@ -59,8 +59,8 @@ class ConfigModel extends Model
     {
         $attributes = array_filter([
             'siteId' => $this->siteId,
-            'template' => $this->template,
-            'variables' => $this->variables,
+            'route' => $this->route,
+            'params' => $this->params,
         ]);
         $encoded = Json::encode($attributes);
 
@@ -68,25 +68,27 @@ class ConfigModel extends Model
     }
 
     /**
-     * Validates the variables recursively.
+     * Validates the params recursively.
      */
-    private function validateVariablesRecursively(array $variables): bool
+    private function validateParamsRecursively(array $params): bool
     {
         $signalsVariableName = Datastar::getInstance()->settings->signalsVariableName;
 
-        foreach ($variables as $key => $value) {
+        foreach ($params as $key => $value) {
             if ($key === $signalsVariableName) {
-                $this->addError('variables', 'Variable `' . $signalsVariableName . '` is reserved. Use a different name or modify the name of the signals variable using the `signalsVariableName` config setting.');
+                $this->addError('params', 'Param `' . $signalsVariableName . '` is reserved. Use a different name or modify the name of the signals variable using the `signalsVariableName` config setting.');
                 return false;
             }
+        }
 
+        foreach ($params as $key => $value) {
             if (is_object($value)) {
-                $this->addError('variables', 'Variable `' . $key . '` is an object, which is a forbidden variable type in the context of a Datastar request.');
+                $this->addError('params', 'Param `' . $key . '` is an object, which is a forbidden param type in the context of a Datastar request.');
                 return false;
             }
 
             if (is_array($value)) {
-                return $this->validateVariablesRecursively($value);
+                return $this->validateParamsRecursively($value);
             }
         }
 

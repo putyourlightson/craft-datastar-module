@@ -16,10 +16,10 @@ beforeEach(function() {
 
 test('Test creating an action', function(string $method) {
     $variable = new DatastarVariable();
-    $value = $variable->$method('template');
+    $value = $variable->$method('route');
     expect($value)
         ->toStartWith("@$method(")
-        ->toContain('template');
+        ->toContain('route');
 
     if ($method === 'get') {
         expect($value)
@@ -36,19 +36,19 @@ test('Test creating an action', function(string $method) {
     'delete',
 ]);
 
-test('Test creating an action containing an array of primitive variables', function() {
+test('Test creating an action containing an array of primitive params', function() {
     $variable = new DatastarVariable();
-    $value = $variable->get('template', ['x' => 1, 'y' => 'string', 'z' => true]);
+    $value = $variable->get('route', ['x' => 1, 'y' => 'string', 'z' => true]);
     expect($value)
         ->toContain('1', 'string', 'true');
 });
 
-test('Test that creating an action containing a reserved variable name throws an exception', function() {
+test('Test that creating an action containing the signals variable name throws an exception', function() {
     $variable = new DatastarVariable();
-    $variable->get('template', [Datastar::getInstance()->settings->signalsVariableName => 1]);
+    $variable->get('route', [Datastar::getInstance()->settings->signalsVariableName => 1]);
 })->throws(SyntaxError::class);
 
-test('Test that creating an action containing an object variable throws an exception', function() {
+test('Test that creating an action containing an object param throws an exception', function() {
     $variable = new DatastarVariable();
-    $variable->get('template', ['object' => new stdClass()]);
+    $variable->get('route', ['object' => new stdClass()]);
 })->throws(SyntaxError::class);

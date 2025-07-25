@@ -47,7 +47,7 @@ class DefaultController extends Controller
 
             Craft::$app->getSites()->setCurrentSite($config->siteId);
 
-            $this->renderDatastarTemplate($config->template, $config->variables);
+            $this->processRoute($config->route, $config->params);
         });
     }
 }

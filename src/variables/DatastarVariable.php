@@ -6,7 +6,7 @@
 namespace putyourlightson\datastar\variables;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\helpers\ActionHelper;
+use putyourlightson\datastar\helpers\DatastarHelper;
 use putyourlightson\datastar\helpers\RequestHelper;
 use yii\web\Response;
 
@@ -15,41 +15,41 @@ class DatastarVariable
     /**
      * Returns a Datastar `@get` action.
      */
-    public function get(string $template, array $variables = [], array $options = []): string
+    public function get(string $route, array $variables = [], array $options = []): string
     {
-        return ActionHelper::getAction('get', $template, $variables, $options);
+        return DatastarHelper::getAction('get', $route, $variables, $options);
     }
 
     /**
      * Returns a Datastar `@post` action.
      */
-    public function post(string $template, array $variables = [], array $options = []): string
+    public function post(string $route, array $variables = [], array $options = []): string
     {
-        return ActionHelper::getAction('post', $template, $variables, $options);
+        return DatastarHelper::getAction('post', $route, $variables, $options);
     }
 
     /**
      * Returns a Datastar `@put` action.
      */
-    public function put(string $template, array $variables = [], array $options = []): string
+    public function put(string $route, array $variables = [], array $options = []): string
     {
-        return ActionHelper::getAction('put', $template, $variables, $options);
+        return DatastarHelper::getAction('put', $route, $variables, $options);
     }
 
     /**
      * Returns a Datastar `@patch` action.
      */
-    public function patch(string $template, array $variables = [], array $options = []): string
+    public function patch(string $route, array $variables = [], array $options = []): string
     {
-        return ActionHelper::getAction('patch', $template, $variables, $options);
+        return DatastarHelper::getAction('patch', $route, $variables, $options);
     }
 
     /**
      * Returns a Datastar `@delete` action.
      */
-    public function delete(string $template, array $variables = [], array $options = []): string
+    public function delete(string $route, array $variables = [], array $options = []): string
     {
-        return ActionHelper::getAction('delete', $template, $variables, $options);
+        return DatastarHelper::getAction('delete', $route, $variables, $options);
     }
 
     /**
