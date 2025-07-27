@@ -7,10 +7,9 @@ namespace putyourlightson\datastar\controllers;
 
 use Craft;
 use craft\web\Controller;
-use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\DatastarEventStream;
-use putyourlightson\datastar\helpers\RequestHelper;
 use putyourlightson\datastar\models\ConfigModel;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
@@ -38,31 +37,24 @@ class DefaultController extends Controller
     /**
      * Default controller action.
      */
-    public function actionIndex(): Response
+    public function actionIndex(): ?Response
     {
-        return Datastar::getInstance()->sse->getStreamedResponse(function() {
-            $hashedConfig = $this->request->getParam('config');
-            $config = ConfigModel::fromHashed($hashedConfig);
-            if ($config === null) {
-                $this->throwException('Submitted data was tampered.');
-            }
-
-            Craft::$app->getSites()->setCurrentSite($config->siteId);
-
-            $this->processRoute($config->route, $config->params);
-        });
-    }
-
-    /**
-     * Processes a route.
-     */
-    protected function processRoute(string $route, array $params = []): void
-    {
-        if (str_starts_with($route, 'actions/')) {
-            $route = substr($route, strlen('actions/'));
-            RequestHelper::runAction($route, $params);
-        } else {
-            Datastar::getInstance()->sse->renderDatastarTemplate($route, $params);
+        $hashedConfig = $this->request->getParam('config');
+        $config = ConfigModel::fromHashed($hashedConfig);
+        if ($config === null) {
+            throw new BadRequestHttpException('Submitted data was tampered.');
         }
+
+        Craft::$app->getSites()->setCurrentSite($config->siteId);
+
+        if (str_starts_with($config->route, 'actions/')) {
+            $route = substr($config->route, strlen('actions/'));
+
+            return Craft::$app->runAction($route, $config->params);
+        }
+
+        return $this->getStreamedResponse(function() use ($config) {
+            $this->renderDatastarTemplate($config->route, $config->params);
+        });
     }
 }

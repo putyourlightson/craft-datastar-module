@@ -48,6 +48,9 @@ class SseService extends Component
      */
     public function getStreamedResponse(?callable $callable = null): StreamedResponse
     {
+        // Abort the process if the client closes the connection.
+        ignore_user_abort(false);
+
         $response = Datastar::getInstance()->streamedResponse;
         Craft::$app->set('response', $response);
 

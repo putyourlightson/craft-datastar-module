@@ -6,7 +6,7 @@
 namespace putyourlightson\datastar\variables;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\helpers\DatastarHelper;
+use putyourlightson\datastar\helpers\ActionHelper;
 use putyourlightson\datastar\helpers\RequestHelper;
 use yii\web\Response;
 
@@ -17,7 +17,7 @@ class DatastarVariable
      */
     public function get(string $route, array $variables = [], array $options = []): string
     {
-        return DatastarHelper::getAction('get', $route, $variables, $options);
+        return ActionHelper::getAction('get', $route, $variables, $options);
     }
 
     /**
@@ -25,7 +25,7 @@ class DatastarVariable
      */
     public function post(string $route, array $variables = [], array $options = []): string
     {
-        return DatastarHelper::getAction('post', $route, $variables, $options);
+        return ActionHelper::getAction('post', $route, $variables, $options);
     }
 
     /**
@@ -33,7 +33,7 @@ class DatastarVariable
      */
     public function put(string $route, array $variables = [], array $options = []): string
     {
-        return DatastarHelper::getAction('put', $route, $variables, $options);
+        return ActionHelper::getAction('put', $route, $variables, $options);
     }
 
     /**
@@ -41,7 +41,7 @@ class DatastarVariable
      */
     public function patch(string $route, array $variables = [], array $options = []): string
     {
-        return DatastarHelper::getAction('patch', $route, $variables, $options);
+        return ActionHelper::getAction('patch', $route, $variables, $options);
     }
 
     /**
@@ -49,7 +49,7 @@ class DatastarVariable
      */
     public function delete(string $route, array $variables = [], array $options = []): string
     {
-        return DatastarHelper::getAction('delete', $route, $variables, $options);
+        return ActionHelper::getAction('delete', $route, $variables, $options);
     }
 
     /**

@@ -12,7 +12,7 @@ use craft\web\Request;
 use putyourlightson\datastar\models\ConfigModel;
 use Twig\Error\SyntaxError;
 
-class DatastarHelper
+class ActionHelper
 {
     /**
      * Returns a Datastar action.
