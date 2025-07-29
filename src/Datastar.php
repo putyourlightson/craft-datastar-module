@@ -6,11 +6,13 @@
 namespace putyourlightson\datastar;
 
 use Craft;
+use craft\web\Response;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\SettingsModel;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use putyourlightson\datastar\web\StreamedResponse;
+use yii\base\Event;
 use yii\base\Module;
 
 /**
@@ -99,8 +101,13 @@ class Datastar extends Module
 
         $bundle = Craft::$app->getView()->registerAssetBundle(DatastarAssetBundle::class);
 
-        // Register the JS file explicitly so that it will be output when using template caching.
-        $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
-        Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
+        /**
+         * Register the JS file explicitly so that it will be output when using template caching. We use the `EVENT_BEFORE_SEND` event so that the JS file is registered regardless of whether this is an error response or not.
+         * https://github.com/putyourlightson/craft-datastar/issues/20
+         */
+        Event::on(Response::class, Response::EVENT_BEFORE_SEND, function() use ($bundle) {
+            $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
+            Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
+        });
     }
 }
