@@ -44,17 +44,20 @@ class DefaultController extends Controller
         if ($config === null) {
             throw new BadRequestHttpException('Submitted data was tampered.');
         }
-
         Craft::$app->getSites()->setCurrentSite($config->siteId);
 
-        if (str_starts_with($config->route, 'actions/')) {
-            $route = substr($config->route, strlen('actions/'));
+        $route = $config->route;
+        $params = $config->params;
+        $actionPrefix = Craft::$app->getConfig()->getGeneral()->actionTrigger . '/';
 
-            return Craft::$app->runAction($route, $config->params);
+        if (str_starts_with($route, $actionPrefix)) {
+            $route = substr($route, strlen($actionPrefix));
+
+            return Craft::$app->runAction($route, $params);
         }
 
-        return $this->getStreamedResponse(function() use ($config) {
-            $this->renderDatastarTemplate($config->route, $config->params);
+        return $this->getEventStream(function() use ($route, $params) {
+            $this->renderDatastarTemplate($route, $params);
         });
     }
 }

@@ -12,11 +12,19 @@ use Throwable;
 trait DatastarEventStream
 {
     /**
-     * Returns a streamed response.
+     * Returns an event stream.
      */
-    protected function getStreamedResponse(?callable $callable = null): StreamedResponse
+    protected function getEventStream(?callable $callable = null): StreamedResponse
     {
-        return Datastar::getInstance()->sse->getStreamedResponse($callable);
+        return Datastar::getInstance()->sse->getEventStream($callable);
+    }
+
+    /**
+     * Returns the output of all events as a string.
+     */
+    protected function getEventOutput(): string
+    {
+        return Datastar::getInstance()->sse->getEventOutput();
     }
 
     /**

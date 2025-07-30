@@ -14,9 +14,9 @@ beforeEach(function() {
 });
 
 test('Test that elements output in templates are patched', function(string $template) {
-    Datastar::getInstance()->sse->renderDatastarTemplate($template, [], false);
+    Datastar::getInstance()->sse->renderDatastarTemplate($template);
 
-    expect(Datastar::getInstance()->sse->getResponseData())
+    expect(Datastar::getInstance()->sse->getEventOutput())
         ->toContain('data: elements <div>test</div>');
 })->with([
     'html',
@@ -25,9 +25,9 @@ test('Test that elements output in templates are patched', function(string $temp
 ]);
 
 test('Test remove elements tag', function() {
-    Datastar::getInstance()->sse->renderDatastarTemplate('remove', [], false);
+    Datastar::getInstance()->sse->renderDatastarTemplate('remove');
 
-    expect(Datastar::getInstance()->sse->getResponseData())
+    expect(Datastar::getInstance()->sse->getEventOutput())
         ->toContain('data: mode remove');
 });
 

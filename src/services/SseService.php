@@ -24,14 +24,16 @@ use yii\web\Response;
 class SseService extends Component
 {
     /**
-     * The response data.
+     * Whether the response is a streamed response.
      */
-    private string $responseData = '';
+    private bool $isStreamedResponse = false;
 
     /**
-     * Whether to send SSE events when processing them.
+     * Server sent events to send.
+     *
+     * @var EventInterface[]
      */
-    private bool $sendSseEvents = true;
+    private array $sseEvents = [];
 
     /**
      * Server sent event options to send.
@@ -44,18 +46,24 @@ class SseService extends Component
     private ?string $sseMethodInProcess = null;
 
     /**
-     * Returns a streamed response.
+     * Returns an event stream.
      */
-    public function getStreamedResponse(?callable $callable = null): StreamedResponse
+    public function getEventStream(?callable $callable = null): StreamedResponse
     {
         // Abort the process if the client closes the connection.
         ignore_user_abort(false);
+
+        $this->isStreamedResponse = true;
 
         $response = Datastar::getInstance()->streamedResponse;
         Craft::$app->set('response', $response);
 
         $response->stream = function() use ($callable) {
-            if ($callable !== null) {
+            echo $this->getEventOutput();
+            ob_flush();
+            flush();
+
+            if (is_callable($callable)) {
                 $callable();
             }
 
@@ -77,17 +85,22 @@ class SseService extends Component
     }
 
     /**
-     * Returns the response data.
+     * Returns the output of all events as a string.
      */
-    public function getResponseData(): string
+    public function getEventOutput(): string
     {
-        return $this->responseData;
+        $data = '';
+        foreach ($this->sseEvents as $event) {
+            $data .= $event->getOutput();
+        }
+
+        return $data;
     }
 
     /**
      * Patches elements into the DOM.
      */
-    public function patchElements(string $data, array $options = [], bool $send = true): void
+    public function patchElements(string $data, array $options = []): void
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
@@ -96,13 +109,13 @@ class SseService extends Component
         );
         $event = new PatchElements($data, $options);
 
-        $this->processEvent($event, $send);
+        $this->processEvent($event);
     }
 
     /**
      * Removes elements from the DOM.
      */
-    public function removeElements(string $selector, array $options = [], bool $send = true): void
+    public function removeElements(string $selector, array $options = []): void
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
@@ -111,13 +124,13 @@ class SseService extends Component
         );
         $event = new RemoveElements($selector, $options);
 
-        $this->processEvent($event, $send);
+        $this->processEvent($event);
     }
 
     /**
      * Patches signals.
      */
-    public function patchSignals(array $signals, array $options = [], bool $send = true): void
+    public function patchSignals(array $signals, array $options = []): void
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
@@ -126,13 +139,13 @@ class SseService extends Component
         );
         $event = new PatchSignals($signals, $options);
 
-        $this->processEvent($event, $send);
+        $this->processEvent($event);
     }
 
     /**
      * Executes JavaScript in the browser.
      */
-    public function executeScript(string $script, array $options = [], bool $send = true): void
+    public function executeScript(string $script, array $options = []): void
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
@@ -142,13 +155,13 @@ class SseService extends Component
 
         $event = new ExecuteScript($script, $options);
 
-        $this->processEvent($event, $send);
+        $this->processEvent($event);
     }
 
     /**
      * Redirects the browser by setting the location to the provided URI.
      */
-    public function location(string $uri, array $options = [], bool $send = true): void
+    public function location(string $uri, array $options = []): void
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
@@ -158,13 +171,13 @@ class SseService extends Component
 
         $event = new Location($uri, $options);
 
-        $this->processEvent($event, $send);
+        $this->processEvent($event);
     }
 
     /**
      * Renders a Datastar template.
      */
-    public function renderDatastarTemplate(string $template, array $variables = [], bool $sendSseEvents = true): void
+    public function renderDatastarTemplate(string $template, array $variables = []): void
     {
         if (!Craft::$app->getView()->doesTemplateExist($template)) {
             $this->throwException('Template `' . $template . '` does not exist.');
@@ -175,9 +188,6 @@ class SseService extends Component
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $variables,
         );
-
-        $originalSendSseEvents = $this->sendSseEvents;
-        $this->sendSseEvents = $sendSseEvents;
 
         $request = Craft::$app->getRequest();
 
@@ -194,14 +204,12 @@ class SseService extends Component
         }
 
         if (trim($output) !== '') {
-            $this->patchElements($output, [], $sendSseEvents);
+            $this->patchElements($output);
         }
-
-        $this->sendSseEvents = $originalSendSseEvents;
     }
 
     /**
-     * Sets server sent event options.
+     * Sets server sent event options for the current request.
      */
     public function setSseEventOptions(array $options): void
     {
@@ -250,36 +258,27 @@ class SseService extends Component
     /**
      * Processes an event.
      */
-    private function processEvent(EventInterface $event, bool $send): void
+    private function processEvent(EventInterface $event): void
     {
         $this->verifySseMethodInProcess($event);
 
         Datastar::getInstance()->streamedResponse->resendHeaders();
 
-        $shouldSend = $this->sendSseEvents && $send;
+        $this->sseEvents[] = $event;
 
-        if ($shouldSend) {
+        if ($this->isStreamedResponse) {
             // Clean and end all existing output buffers.
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
-        }
 
-        $output = $event->getOutput();
-
-        if ($shouldSend) {
-            echo $output;
+            echo $event->getOutput();
 
             if (ob_get_contents()) {
                 ob_end_flush();
             }
             flush();
-        }
 
-        // Append the resulting output to the response data.
-        $this->responseData .= $output;
-
-        if ($shouldSend) {
             // Start a new output buffer to capture any subsequent inline content.
             ob_start();
         }
