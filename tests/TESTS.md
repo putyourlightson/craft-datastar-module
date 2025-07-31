@@ -15,17 +15,22 @@ _Tests the architecture of the plugin._
 
 ## Feature Tests
 
+### [Action](Feature/ActionTest.php)
+
+_Tests the Datastar action helper._
+
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test creating an action containing an array of primitive params.  
+
+### [Config](Feature/ConfigTest.php)
+
+_Tests the Datastar config model._
+
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating a config model containing the signals variable name throws an exception.  
+![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating a config model containing an object param throws an exception.  
+
 ### [Sse](Feature/SseTest.php)
 
 _Tests the SSE service._
 
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test remove elements tag.  
 ![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that calling an SSE method when another one is in process throws an exception.  
-
-### [Variable](Feature/VariableTest.php)
-
-_Tests the Datastar variable._
-
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test creating an action containing an array of primitive params.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing the signals variable name throws an exception.  
-![Pass](https://raw.githubusercontent.com/putyourlightson/craft-generate-test-spec/main/icons/pass.svg) Test that creating an action containing an object param throws an exception.  
