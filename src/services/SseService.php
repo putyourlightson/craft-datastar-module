@@ -87,14 +87,26 @@ class SseService extends Component
     /**
      * Returns the output of all events as a string.
      */
-    public function getEventOutput(): string
+    public function getEventOutput(bool $reset = true): string
     {
         $data = '';
         foreach ($this->sseEvents as $event) {
             $data .= $event->getOutput();
         }
+        
+        if ($reset) {
+            $this->resetEvents();
+        }
 
         return $data;
+    }
+
+    /**
+     * Resets the events.
+     */
+    public function resetEvents(): void
+    {
+        $this->sseEvents = [];
     }
 
     /**
