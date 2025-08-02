@@ -7,14 +7,16 @@ namespace putyourlightson\datastar\controllers;
 
 use Craft;
 use craft\web\Controller;
-use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\ConfigModel;
+use putyourlightson\datastar\traits\SseTrait;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 class DefaultController extends Controller
 {
+    use SseTrait;
+
     /**
      * @inheritdoc
      */
@@ -54,8 +56,8 @@ class DefaultController extends Controller
             return Craft::$app->runAction($route, $params);
         }
 
-        return Datastar::getInstance()->sse->getEventStream(function() use ($route, $params) {
-            Datastar::getInstance()->sse->renderDatastarTemplate($route, $params);
+        return $this->sse()->getEventStream(function() use ($route, $params) {
+            $this->sse()->renderDatastarTemplate($route, $params);
         });
     }
 }

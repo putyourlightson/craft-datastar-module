@@ -5,13 +5,15 @@
 
 namespace putyourlightson\datastar\variables;
 
-use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\ActionHelper;
 use putyourlightson\datastar\helpers\RequestHelper;
+use putyourlightson\datastar\traits\SseTrait;
 use yii\web\Response;
 
 class DatastarVariable
 {
+    use SseTrait;
+
     /**
      * Returns a Datastar `@get` action.
      */
@@ -73,6 +75,6 @@ class DatastarVariable
      */
     public function setSseEventOptions(array $options = []): void
     {
-        Datastar::getInstance()->sse->setSseEventOptions($options);
+        $this->sse()->setSseEventOptions($options);
     }
 }
