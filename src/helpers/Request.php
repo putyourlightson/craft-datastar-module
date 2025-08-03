@@ -9,7 +9,7 @@ use Craft;
 use starfederation\datastar\ServerSentEventGenerator;
 use yii\web\Response;
 
-class RequestHelper
+class Request
 {
     /**
      * Reads and returns the signals passed into the request.

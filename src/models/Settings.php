@@ -7,7 +7,7 @@ namespace putyourlightson\datastar\models;
 
 use craft\base\Model;
 
-class SettingsModel extends Model
+class Settings extends Model
 {
     /**
      * Whether to register the Datastar script on the frontend.

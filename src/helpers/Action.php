@@ -9,10 +9,10 @@ use Craft;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\web\Request;
-use putyourlightson\datastar\models\ConfigModel;
+use putyourlightson\datastar\models\Config;
 use Twig\Error\SyntaxError;
 
-class ActionHelper
+class Action
 {
     /**
      * Returns a Datastar action.
@@ -42,7 +42,7 @@ class ActionHelper
      */
     public static function getUrl(string $route, array $params = []): string
     {
-        $config = new ConfigModel([
+        $config = new Config([
             'siteId' => Craft::$app->getSites()->getCurrentSite()->id,
             'route' => $route,
             'params' => $params,

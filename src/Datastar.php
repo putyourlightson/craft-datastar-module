@@ -8,7 +8,7 @@ namespace putyourlightson\datastar;
 use Craft;
 use craft\web\Response;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
-use putyourlightson\datastar\models\SettingsModel;
+use putyourlightson\datastar\models\Settings;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use putyourlightson\datastar\web\StreamedResponse;
@@ -18,7 +18,7 @@ use yii\base\Module;
 /**
  * @property-read SseService $sse
  * @property-read StreamedResponse $streamedResponse
- * @property-read SettingsModel $settings
+ * @property-read Settings $settings
  */
 class Datastar extends Module
 {
@@ -30,7 +30,7 @@ class Datastar extends Module
     /**
      * The module settings.
      */
-    private ?SettingsModel $settingsInternal = null;
+    private ?Settings $settingsInternal = null;
 
     /**
      * The bootstrap process creates an instance of the module.
@@ -71,10 +71,10 @@ class Datastar extends Module
         $this->registerScript();
     }
 
-    public function getSettings(): SettingsModel
+    public function getSettings(): Settings
     {
         if ($this->settingsInternal === null) {
-            $this->settingsInternal = new SettingsModel(Craft::$app->getConfig()->getConfigFromFile('datastar'));
+            $this->settingsInternal = new Settings(Craft::$app->getConfig()->getConfigFromFile('datastar'));
         }
 
         return $this->settingsInternal;

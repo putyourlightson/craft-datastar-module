@@ -8,7 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\helpers\RequestHelper;
+use putyourlightson\datastar\helpers\Request;
 use putyourlightson\datastar\web\StreamedResponse;
 use starfederation\datastar\events\EventInterface;
 use starfederation\datastar\events\ExecuteScript;
@@ -93,7 +93,7 @@ class SseService extends Component
         foreach ($this->sseEvents as $event) {
             $data .= $event->getOutput();
         }
-        
+
         if ($reset) {
             $this->resetEvents();
         }
@@ -104,15 +104,17 @@ class SseService extends Component
     /**
      * Resets the events.
      */
-    public function resetEvents(): void
+    public function resetEvents(): static
     {
         $this->sseEvents = [];
+
+        return $this;
     }
 
     /**
      * Patches elements into the DOM.
      */
-    public function patchElements(string $data, array $options = []): void
+    public function patchElements(string $data, array $options = []): static
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
@@ -122,12 +124,14 @@ class SseService extends Component
         $event = new PatchElements($data, $options);
 
         $this->processEvent($event);
+
+        return $this;
     }
 
     /**
      * Removes elements from the DOM.
      */
-    public function removeElements(string $selector, array $options = []): void
+    public function removeElements(string $selector, array $options = []): static
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultElementOptions,
@@ -137,12 +141,14 @@ class SseService extends Component
         $event = new RemoveElements($selector, $options);
 
         $this->processEvent($event);
+
+        return $this;
     }
 
     /**
      * Patches signals.
      */
-    public function patchSignals(array $signals, array $options = []): void
+    public function patchSignals(array $signals, array $options = []): static
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultSignalOptions,
@@ -152,12 +158,14 @@ class SseService extends Component
         $event = new PatchSignals($signals, $options);
 
         $this->processEvent($event);
+
+        return $this;
     }
 
     /**
      * Executes JavaScript in the browser.
      */
-    public function executeScript(string $script, array $options = []): void
+    public function executeScript(string $script, array $options = []): static
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
@@ -168,12 +176,14 @@ class SseService extends Component
         $event = new ExecuteScript($script, $options);
 
         $this->processEvent($event);
+
+        return $this;
     }
 
     /**
      * Redirects the browser by setting the location to the provided URI.
      */
-    public function location(string $uri, array $options = []): void
+    public function location(string $uri, array $options = []): static
     {
         $options = $this->patchEventOptions(
             Datastar::getInstance()->settings->defaultExecuteScriptOptions,
@@ -184,18 +194,20 @@ class SseService extends Component
         $event = new Location($uri, $options);
 
         $this->processEvent($event);
+
+        return $this;
     }
 
     /**
-     * Renders a Datastar template.
+     * Renders a template.
      */
-    public function renderDatastarTemplate(string $template, array $variables = []): void
+    public function renderTemplate(string $template, array $variables = []): static
     {
         if (!Craft::$app->getView()->doesTemplateExist($template)) {
             $this->throwException('Template `' . $template . '` does not exist.');
         }
 
-        $signals = RequestHelper::readSignals();
+        $signals = Request::readSignals();
         $variables = array_merge(
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $variables,
@@ -218,22 +230,28 @@ class SseService extends Component
         if (trim($output) !== '') {
             $this->patchElements($output);
         }
+
+        return $this;
     }
 
     /**
      * Sets server sent event options for the current request.
      */
-    public function setSseEventOptions(array $options): void
+    public function setSseEventOptions(array $options): static
     {
         $this->sseEventOptions = $options;
+
+        return $this;
     }
 
     /**
      * Sets the server sent event method currently in process.
      */
-    public function setSseMethodInProcess(?string $method): void
+    public function setSseMethodInProcess(?string $method): static
     {
         $this->sseMethodInProcess = $method;
+
+        return $this;
     }
 
     /**

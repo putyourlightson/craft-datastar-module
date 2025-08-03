@@ -10,7 +10,7 @@ use craft\base\Model;
 use craft\helpers\Json;
 use putyourlightson\datastar\Datastar;
 
-class ConfigModel extends Model
+class Config extends Model
 {
     public ?int $siteId = null;
     public string $route = '';
@@ -19,7 +19,7 @@ class ConfigModel extends Model
     /**
      * Creates a new instance from a hashed config string.
      */
-    public static function fromHashed(string $config): ?self
+    public static function fromHashed(string $config): ?static
     {
         $data = Craft::$app->getSecurity()->validateData($config);
         if ($data === false) {

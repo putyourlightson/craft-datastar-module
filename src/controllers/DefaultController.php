@@ -7,7 +7,7 @@ namespace putyourlightson\datastar\controllers;
 
 use Craft;
 use craft\web\Controller;
-use putyourlightson\datastar\models\ConfigModel;
+use putyourlightson\datastar\models\Config;
 use putyourlightson\datastar\traits\SseTrait;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -40,7 +40,7 @@ class DefaultController extends Controller
     public function actionIndex(): ?Response
     {
         $hashedConfig = $this->request->getParam('config');
-        $config = ConfigModel::fromHashed($hashedConfig);
+        $config = Config::fromHashed($hashedConfig);
         if ($config === null) {
             throw new BadRequestHttpException('Submitted data was tampered.');
         }
@@ -57,7 +57,7 @@ class DefaultController extends Controller
         }
 
         return $this->sse()->getEventStream(function() use ($route, $params) {
-            $this->sse()->renderDatastarTemplate($route, $params);
+            $this->sse()->renderTemplate($route, $params);
         });
     }
 }
