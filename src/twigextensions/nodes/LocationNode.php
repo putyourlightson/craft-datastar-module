@@ -6,14 +6,14 @@
 namespace putyourlightson\datastar\twigextensions\nodes;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\services\SseService;
+use putyourlightson\datastar\services\Sse;
 use Twig\Compiler;
 use Twig\Node\Node;
 
 class LocationNode extends Node
 {
     /**
-     * @uses SseService::location()
+     * @uses Sse::location()
      */
     public function compile(Compiler $compiler): void
     {

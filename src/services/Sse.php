@@ -21,7 +21,7 @@ use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
-class SseService extends Component
+class Sse extends Component
 {
     /**
      * Whether the response is a streamed response.
@@ -102,13 +102,11 @@ class SseService extends Component
     }
 
     /**
-     * Resets the events.
+     * Reads and returns the signals passed into the request.
      */
-    public function resetEvents(): static
+    public function readSignals(): array
     {
-        $this->sseEvents = [];
-
-        return $this;
+        return Request::readSignals();
     }
 
     /**
@@ -207,7 +205,7 @@ class SseService extends Component
             $this->throwException('Template `' . $template . '` does not exist.');
         }
 
-        $signals = Request::readSignals();
+        $signals = $this->readSignals();
         $variables = array_merge(
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
             $variables,
@@ -230,6 +228,16 @@ class SseService extends Component
         if (trim($output) !== '') {
             $this->patchElements($output);
         }
+
+        return $this;
+    }
+
+    /**
+     * Resets the events.
+     */
+    public function resetEvents(): static
+    {
+        $this->sseEvents = [];
 
         return $this;
     }

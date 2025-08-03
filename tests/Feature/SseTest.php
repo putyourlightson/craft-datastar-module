@@ -5,11 +5,11 @@
  */
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\services\SseService;
+use putyourlightson\datastar\services\Sse;
 use yii\web\BadRequestHttpException;
 
 beforeEach(function() {
-    Datastar::getInstance()->set('sse', SseService::class);
+    Datastar::getInstance()->set('sse', Sse::class);
     Craft::$app->getView()->setTemplatesPath(Craft::getAlias('@putyourlightson/datastar/test/templates'));
 });
 
