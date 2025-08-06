@@ -19,7 +19,7 @@ class Config extends Model
     /**
      * Creates a new instance from a hashed config string.
      */
-    public static function fromHashed(string $config): ?static
+    public static function fromHashed(string $config): ?self
     {
         $data = Craft::$app->getSecurity()->validateData($config);
         if ($data === false) {

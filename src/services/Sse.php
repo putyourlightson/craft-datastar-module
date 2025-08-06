@@ -48,10 +48,15 @@ class Sse extends Component
     /**
      * Returns an event stream.
      */
-    public function getEventStream(?callable $callable = null): StreamedResponse
+    public function getEventStream(?callable $callable = null, bool $closeSession = true): StreamedResponse
     {
         // Abort the process if the client closes the connection.
         ignore_user_abort(false);
+
+        // Close the session immediately to allow other requests.
+        if ($closeSession && session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
 
         $this->isStreamedResponse = true;
 
