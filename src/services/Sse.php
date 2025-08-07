@@ -29,6 +29,12 @@ class Sse extends Component
     private bool $isStreamedResponse = false;
 
     /**
+     * Whether the session should be closed when the event stream begins.
+     * This is useful to allow other requests to be processed while the event stream is being sent.
+     */
+    private bool $closeSession = true;
+
+    /**
      * Server sent events to send.
      *
      * @var EventInterface[]
@@ -64,6 +70,10 @@ class Sse extends Component
         Craft::$app->set('response', $response);
 
         $response->stream = function() use ($callable) {
+            if ($this->closeSession && session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+
             echo $this->getEventOutput();
             ob_flush();
             flush();
@@ -243,6 +253,16 @@ class Sse extends Component
     public function resetEvents(): static
     {
         $this->sseEvents = [];
+
+        return $this;
+    }
+
+    /**
+     * Sets the value of the `closeSession` property.
+     */
+    public function closeSession(bool $value = true): static
+    {
+        $this->closeSession = $value;
 
         return $this;
     }
