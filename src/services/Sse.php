@@ -9,7 +9,6 @@ use Craft;
 use craft\base\Component;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\Request;
-use putyourlightson\datastar\web\StreamedResponse;
 use starfederation\datastar\events\EventInterface;
 use starfederation\datastar\events\ExecuteScript;
 use starfederation\datastar\events\Location;
@@ -54,15 +53,14 @@ class Sse extends Component
     /**
      * Returns an event stream.
      */
-    public function getEventStream(?callable $callable = null): StreamedResponse
+    public function getEventStream(?callable $callable = null): Response
     {
         // Abort the process if the client closes the connection.
         ignore_user_abort(false);
 
         $this->isStreamedResponse = true;
 
-        $response = Datastar::getInstance()->streamedResponse;
-        Craft::$app->set('response', $response);
+        $response = Craft::$app->getResponse();
 
         $response->stream = function() use ($callable) {
             if ($this->closeSession && session_status() === PHP_SESSION_ACTIVE) {
@@ -320,7 +318,7 @@ class Sse extends Component
     {
         $this->verifySseMethodInProcess($event);
 
-        Datastar::getInstance()->streamedResponse->resendHeaders();
+        $this->resendHeaders();
 
         $this->sseEvents[] = $event;
 
@@ -342,6 +340,28 @@ class Sse extends Component
         }
 
         $this->setSseMethodInProcess(null);
+    }
+
+    /**
+     * Resends the response headers.
+     *
+     * @see Response::sendHeaders()
+     */
+    private function resendHeaders(): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
+            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+            // set replace for first occurrence of header but false afterwards to allow multiple
+            $replace = true;
+            foreach ($values as $value) {
+                header("$name: $value", $replace);
+                $replace = false;
+            }
+        }
     }
 
     /**
