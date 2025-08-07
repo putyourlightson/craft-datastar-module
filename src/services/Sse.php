@@ -254,7 +254,7 @@ class Sse extends Component
     /**
      * Sets the value of the `closeSession` property.
      */
-    public function closeSession(bool $value = true): static
+    public function setCloseSession(bool $value): static
     {
         $this->closeSession = $value;
 
