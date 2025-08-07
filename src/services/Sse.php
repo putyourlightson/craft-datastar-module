@@ -7,6 +7,7 @@ namespace putyourlightson\datastar\services;
 
 use Craft;
 use craft\base\Component;
+use craft\web\Response;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\Request;
 use starfederation\datastar\events\EventInterface;
@@ -18,7 +19,6 @@ use starfederation\datastar\events\RemoveElements;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
-use yii\web\Response;
 
 class Sse extends Component
 {
@@ -60,6 +60,7 @@ class Sse extends Component
 
         $this->isStreamedResponse = true;
 
+        /** @var Response $response */
         $response = Craft::$app->getResponse();
 
         $response->stream = function() use ($callable) {
@@ -355,7 +356,6 @@ class Sse extends Component
 
         foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
             $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            // set replace for first occurrence of header but false afterwards to allow multiple
             $replace = true;
             foreach ($values as $value) {
                 header("$name: $value", $replace);
