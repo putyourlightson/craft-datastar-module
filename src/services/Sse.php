@@ -319,8 +319,6 @@ class Sse extends Component
     {
         $this->verifySseMethodInProcess($event);
 
-        $this->resendHeaders();
-
         $this->sseEvents[] = $event;
 
         if ($this->isStreamedResponse) {
@@ -341,27 +339,6 @@ class Sse extends Component
         }
 
         $this->setSseMethodInProcess(null);
-    }
-
-    /**
-     * Resends the response headers.
-     *
-     * @see Response::sendHeaders()
-     */
-    private function resendHeaders(): void
-    {
-        if (headers_sent()) {
-            return;
-        }
-
-        foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
-            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
-            $replace = true;
-            foreach ($values as $value) {
-                header("$name: $value", $replace);
-                $replace = false;
-            }
-        }
     }
 
     /**
