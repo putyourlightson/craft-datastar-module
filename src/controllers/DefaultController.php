@@ -8,14 +8,14 @@ namespace putyourlightson\datastar\controllers;
 use Craft;
 use craft\web\Controller;
 use putyourlightson\datastar\models\Config;
-use putyourlightson\datastar\traits\SseTrait;
+use putyourlightson\datastar\traits\Sse;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 class DefaultController extends Controller
 {
-    use SseTrait;
+    use Sse;
 
     /**
      * @inheritdoc

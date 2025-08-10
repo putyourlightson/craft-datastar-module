@@ -29,7 +29,25 @@ test('Test creating an action', function(string $method) {
 ]);
 
 test('Test creating an action containing an array of primitive params', function() {
-    $value = Action::getAction('get', 'test', ['x' => 1, 'y' => 'string', 'z' => true]);
+    $params = ['x' => 1, 'y' => 'string', 'z' => true];
+    $value = Action::getAction('get', 'test', $params);
+    $expected = str_replace(['%7B', '%7D'], ['{', '}'], urlencode(json_encode($params)));
+
     expect($value)
-        ->toContain('1', 'string', 'true');
+        ->toContain($expected);
+});
+
+test('Test creating an action containing an array of options', function() {
+    $options = ['foo' => 'bar'];
+    $value = Action::getAction('get', 'test', [], $options);
+    expect($value)
+        ->toContain(json_encode($options));
+});
+
+test('Test creating an action containing an options string', function() {
+    $options = '{foo: "bar"}';
+    $value = Action::getAction('get', 'test', [], $options);
+
+    expect($value)
+        ->toContain($options);
 });

@@ -20,7 +20,7 @@ use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
 use yii\web\BadRequestHttpException;
 
-class Sse extends Component
+class SseService extends Component
 {
     /**
      * Whether the response is a streamed response.

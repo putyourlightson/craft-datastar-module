@@ -6,7 +6,7 @@
 namespace putyourlightson\datastar\twigextensions\nodes;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\services\Sse;
+use putyourlightson\datastar\services\SseService;
 use Twig\Compiler;
 
 trait CompileWithOptionsTrait
@@ -14,7 +14,7 @@ trait CompileWithOptionsTrait
     /**
      * Compiles a node with options.
      *
-     * @uses Sse::setSseMethodInProcess()
+     * @uses SseService::setSseMethodInProcess()
      */
     public function compileWithOptions(Compiler $compiler, string $method): void
     {

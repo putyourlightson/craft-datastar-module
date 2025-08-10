@@ -6,14 +6,14 @@
 namespace putyourlightson\datastar\twigextensions\nodes;
 
 use putyourlightson\datastar\Datastar;
-use putyourlightson\datastar\services\Sse;
+use putyourlightson\datastar\services\SseService;
 use Twig\Compiler;
 use Twig\Node\Node;
 
 class RemoveElementsNode extends Node
 {
     /**
-     * @uses Sse::removeElements()
+     * @uses SseService::removeElements()
      */
     public function compile(Compiler $compiler): void
     {

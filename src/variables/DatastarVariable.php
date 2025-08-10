@@ -7,12 +7,12 @@ namespace putyourlightson\datastar\variables;
 
 use putyourlightson\datastar\helpers\Action;
 use putyourlightson\datastar\helpers\Request;
-use putyourlightson\datastar\traits\SseTrait;
+use putyourlightson\datastar\traits\Sse;
 use yii\web\Response;
 
 class DatastarVariable
 {
-    use SseTrait;
+    use Sse;
 
     /**
      * Returns a Datastar `@get` action.

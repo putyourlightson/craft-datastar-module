@@ -9,13 +9,13 @@ use Craft;
 use craft\web\Response;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
 use putyourlightson\datastar\models\Settings;
-use putyourlightson\datastar\services\Sse;
+use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
 use yii\base\Event;
 use yii\base\Module;
 
 /**
- * @property-read Sse $sse
+ * @property-read SseService $sse
  * @property-read Settings $settings
  */
 class Datastar extends Module
@@ -81,7 +81,7 @@ class Datastar extends Module
     private function registerComponents(): void
     {
         $this->setComponents([
-            'sse' => Sse::class,
+            'sse' => SseService::class,
         ]);
     }
 

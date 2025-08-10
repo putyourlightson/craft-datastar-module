@@ -5,7 +5,7 @@
 
 namespace putyourlightson\datastar\twigextensions\nodes;
 
-use putyourlightson\datastar\services\Sse;
+use putyourlightson\datastar\services\SseService;
 use Twig\Compiler;
 use Twig\Node\Node;
 
@@ -14,7 +14,7 @@ class ExecuteScriptNode extends Node
     use CompileWithOptionsTrait;
 
     /**
-     * @uses Sse::executeScript()
+     * @uses SseService::executeScript()
      */
     public function compile(Compiler $compiler): void
     {
