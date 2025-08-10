@@ -17,7 +17,7 @@ class DatastarVariable
     /**
      * Returns a Datastar `@get` action.
      */
-    public function get(string $route, array $variables = [], array $options = []): string
+    public function get(string $route, array $variables = [], array|string $options = []): string
     {
         return Action::getAction('get', $route, $variables, $options);
     }
@@ -25,7 +25,7 @@ class DatastarVariable
     /**
      * Returns a Datastar `@post` action.
      */
-    public function post(string $route, array $variables = [], array $options = []): string
+    public function post(string $route, array $variables = [], array|string $options = []): string
     {
         return Action::getAction('post', $route, $variables, $options);
     }
@@ -33,7 +33,7 @@ class DatastarVariable
     /**
      * Returns a Datastar `@put` action.
      */
-    public function put(string $route, array $variables = [], array $options = []): string
+    public function put(string $route, array $variables = [], array|string $options = []): string
     {
         return Action::getAction('put', $route, $variables, $options);
     }
@@ -41,7 +41,7 @@ class DatastarVariable
     /**
      * Returns a Datastar `@patch` action.
      */
-    public function patch(string $route, array $variables = [], array $options = []): string
+    public function patch(string $route, array $variables = [], array|string $options = []): string
     {
         return Action::getAction('patch', $route, $variables, $options);
     }
@@ -49,7 +49,7 @@ class DatastarVariable
     /**
      * Returns a Datastar `@delete` action.
      */
-    public function delete(string $route, array $variables = [], array $options = []): string
+    public function delete(string $route, array $variables = [], array|string $options = []): string
     {
         return Action::getAction('delete', $route, $variables, $options);
     }
