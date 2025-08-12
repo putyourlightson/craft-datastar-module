@@ -291,10 +291,9 @@ class SseService extends Component
             throw $exception;
         }
 
-        $this->setSseMethodInProcess(null);
-        $this->executeScript('console.error(' . json_encode($exception->getMessage()) . ');');
-        flush();
-        exit();
+        $this->getEventStream(function() use ($exception) {
+            $this->executeScript('console.error(' . json_encode($exception->getMessage()) . ');');
+        })->send();
     }
 
     /**
