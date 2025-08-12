@@ -284,10 +284,14 @@ class SseService extends Component
      */
     public function throwException(Throwable $exception): void
     {
-        if (!$this->isStreamedResponse) {
+        if (Craft::$app->getConfig()->getGeneral()->devMode) {
+            Craft::$app->getRequest()->getHeaders()->set('Accept', 'text/html');
+            Craft::$app->getResponse()->format = Response::FORMAT_HTML;
+
             throw $exception;
         }
 
+        $this->setSseMethodInProcess(null);
         $this->executeScript('console.error(' . json_encode($exception->getMessage()) . ');');
         flush();
         exit();
