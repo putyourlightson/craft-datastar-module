@@ -8,6 +8,7 @@ namespace putyourlightson\datastar\services;
 use Craft;
 use craft\base\Component;
 use craft\web\Response;
+use Exception;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\Request;
 use starfederation\datastar\events\EventInterface;
@@ -18,7 +19,6 @@ use starfederation\datastar\events\PatchSignals;
 use starfederation\datastar\events\RemoveElements;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
-use yii\web\BadRequestHttpException;
 
 class SseService extends Component
 {
@@ -210,10 +210,6 @@ class SseService extends Component
      */
     public function renderTemplate(string $template, array $variables = []): static
     {
-        if (!Craft::$app->getView()->doesTemplateExist($template)) {
-            $this->throwException('Template `' . $template . '` does not exist.');
-        }
-
         $signals = $this->readSignals();
         $variables = array_merge(
             [Datastar::getInstance()->settings->signalsVariableName => $signals],
@@ -282,20 +278,19 @@ class SseService extends Component
     }
 
     /**
-     * Throws an exception with the appropriate formats for easier debugging.
+     * Throws an exception or logs a console error, for easier debugging.
      *
      * @phpstan-return never
      */
-    public function throwException(Throwable|string $exception): void
+    public function throwException(Throwable $exception): void
     {
-        Craft::$app->getRequest()->getHeaders()->set('Accept', 'text/html');
-        Craft::$app->getResponse()->format = Response::FORMAT_HTML;
-
-        if ($exception instanceof Throwable) {
+        if (!$this->isStreamedResponse) {
             throw $exception;
         }
 
-        throw new BadRequestHttpException($exception);
+        $this->executeScript('console.error(' . json_encode($exception->getMessage()) . ');');
+        flush();
+        exit();
     }
 
     /**
@@ -367,7 +362,7 @@ class SseService extends Component
             if ($method === 'patchElements') {
                 $message .= ' Ensure that you are not setting or removing signals inside `{% patchelements %}` or `{% executescript %}` tags.';
             }
-            $this->throwException($message);
+            $this->throwException(new Exception($message));
         }
     }
 }

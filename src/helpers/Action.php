@@ -59,17 +59,17 @@ class Action
 
     private static function addCsrfToken(array|string $options): string
     {
-        $token = Craft::$app->getRequest()->getCsrfToken();
         $csrfHeader = Request::CSRF_HEADER;
+        $token = Craft::$app->getRequest()->getCsrfToken();
 
         if (is_array($options)) {
-            return self::addCsrfToArray($options, $token, $csrfHeader);
+            return self::addCsrfToArray($options, $csrfHeader, $token);
         }
 
-        return self::addCsrfToString($options, $token, $csrfHeader);
+        return self::addCsrfToString($options, $csrfHeader, $token);
     }
 
-    private static function addCsrfToArray(array $options, string $token, string $csrfHeader): string
+    private static function addCsrfToArray(array $options, string $csrfHeader, string $token): string
     {
         $headers = $options['headers'] ?? [];
         $headers[$csrfHeader] = $token;
@@ -78,7 +78,7 @@ class Action
         return Json::encode($options);
     }
 
-    private static function addCsrfToString(string $options, string $token, string $csrfHeader): string
+    private static function addCsrfToString(string $options, string $csrfHeader, string $token): string
     {
         if (preg_match('/headers:\s*\{/i', $options)) {
             return preg_replace(
