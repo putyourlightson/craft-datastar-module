@@ -226,12 +226,11 @@ class SseService extends Component
 
         try {
             $output = Craft::$app->getView()->renderTemplate($template, $variables);
+            if (!empty(trim($output))) {
+                $this->patchElements($output);
+            }
         } catch (Throwable $exception) {
             $this->throwException($exception);
-        }
-
-        if (trim($output) !== '') {
-            $this->patchElements($output);
         }
 
         return $this;
