@@ -292,7 +292,8 @@ class SseService extends Component
                     'exception' => $exception,
                 ]));
             } else {
-                $event = new ExecuteScript('console.error(' . json_encode($exception->getMessage()) . ');');
+                $message = Craft::t('app', 'A server error occurred.');
+                $event = new ExecuteScript('console.error(' . json_encode($message) . ');');
             }
             echo $event->getOutput();
         })->send();
