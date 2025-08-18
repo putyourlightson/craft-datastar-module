@@ -7,7 +7,7 @@
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\models\Config;
 
-test('Test that creating a config model containing the signals variable name throws an exception', function() {
+test('Test that creating a config model containing the signals variable name is invalid', function() {
     $config = new Config([
         'route' => 'test',
         'params' => [Datastar::getInstance()->settings->signalsVariableName => 1],
@@ -17,7 +17,7 @@ test('Test that creating a config model containing the signals variable name thr
         ->toBeFalse();
 });
 
-test('Test that creating a config model containing an object param throws an exception', function() {
+test('Test that creating a config model containing an object param is invalid', function() {
     $config = new Config([
         'route' => 'test',
         'params' => ['object' => new stdClass()],

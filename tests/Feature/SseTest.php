@@ -29,8 +29,3 @@ test('Test remove elements tag', function() {
     expect(Datastar::getInstance()->sse->getEventOutput())
         ->toContain('data: mode remove');
 });
-
-test('Test that calling an SSE method when another one is in process throws an exception', function() {
-    Datastar::getInstance()->sse->setSseMethodInProcess('patchElements');
-    Datastar::getInstance()->sse->patchSignals([]);
-})->throws(Exception::class);

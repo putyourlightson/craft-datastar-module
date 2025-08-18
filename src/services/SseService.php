@@ -7,6 +7,7 @@ namespace putyourlightson\datastar\services;
 
 use Craft;
 use craft\base\Component;
+use craft\web\ErrorHandler;
 use craft\web\Response;
 use Exception;
 use putyourlightson\datastar\Datastar;
@@ -283,18 +284,20 @@ class SseService extends Component
      */
     public function throwException(Throwable $exception): void
     {
-        if (Craft::$app->getConfig()->getGeneral()->devMode) {
-            Craft::$app->getRequest()->getHeaders()->set('Accept', 'text/html');
-            Craft::$app->getResponse()->format = Response::FORMAT_HTML;
-
-            throw $exception;
-        }
-
         $this->getEventStream(function() use ($exception) {
-            $this->executeScript('console.error(' . json_encode($exception->getMessage()) . ');');
+            /** @var ErrorHandler $errorHandler */
+            $errorHandler = Craft::$app->getErrorHandler();
+            if ($errorHandler->showExceptionDetails()) {
+                $event = new PatchElements($errorHandler->renderFile($errorHandler->exceptionView, [
+                    'exception' => $exception,
+                ]));
+            } else {
+                $event = new ExecuteScript('console.error(' . json_encode($exception->getMessage()) . ');');
+            }
+            echo $event->getOutput();
         })->send();
 
-        exit();
+        exit(1);
     }
 
     /**
