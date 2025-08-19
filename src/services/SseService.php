@@ -287,6 +287,8 @@ class SseService extends Component
         $this->getEventStream(function() use ($exception) {
             /** @var ErrorHandler $errorHandler */
             $errorHandler = Craft::$app->getErrorHandler();
+            $errorHandler->logException($exception);
+
             if ($errorHandler->showExceptionDetails()) {
                 $event = new PatchElements($errorHandler->renderFile($errorHandler->exceptionView, [
                     'exception' => $exception,
@@ -295,6 +297,7 @@ class SseService extends Component
                 $message = Craft::t('app', 'A server error occurred.');
                 $event = new ExecuteScript('console.error(' . json_encode($message) . ');');
             }
+
             echo $event->getOutput();
         })->send();
 
