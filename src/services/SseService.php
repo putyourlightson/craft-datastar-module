@@ -12,6 +12,7 @@ use craft\web\Response;
 use Exception;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\Request;
+use starfederation\datastar\enums\ElementPatchMode;
 use starfederation\datastar\events\EventInterface;
 use starfederation\datastar\events\ExecuteScript;
 use starfederation\datastar\events\Location;
@@ -302,6 +303,21 @@ class SseService extends Component
         })->send();
 
         exit(1);
+    }
+
+    /**
+     * Prepends dumped content to the `<body>` tag.
+     */
+    public function dump(string $output): void
+    {
+        $this->patchElements($output, [
+            'selector' => 'body',
+            'mode' => ElementPatchMode::Prepend,
+        ]);
+
+        if (!$this->isStreamedResponse) {
+            $this->getEventStream()->send();
+        }
     }
 
     /**

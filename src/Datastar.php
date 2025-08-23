@@ -8,6 +8,7 @@ namespace putyourlightson\datastar;
 use Craft;
 use craft\web\Response;
 use putyourlightson\datastar\assets\DatastarAssetBundle;
+use putyourlightson\datastar\dumpers\SseDumper;
 use putyourlightson\datastar\models\Settings;
 use putyourlightson\datastar\services\SseService;
 use putyourlightson\datastar\twigextensions\DatastarTwigExtension;
@@ -66,6 +67,7 @@ class Datastar extends Module
 
         $this->registerComponents();
         $this->registerTwigExtension();
+        $this->registerSseDumper();
         $this->registerScript();
     }
 
@@ -88,6 +90,15 @@ class Datastar extends Module
     private function registerTwigExtension(): void
     {
         Craft::$app->getView()->registerTwigExtension(new DatastarTwigExtension());
+    }
+
+    private function registerSseDumper(): void
+    {
+        if (empty(Craft::$app->getRequest()->getHeaders()->get('Datastar-Request'))) {
+            return;
+        }
+
+        Craft::$app->set('dumper', new SseDumper());
     }
 
     private function registerScript(): void
