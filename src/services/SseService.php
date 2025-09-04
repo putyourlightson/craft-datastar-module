@@ -9,6 +9,7 @@ use Craft;
 use craft\base\Component;
 use craft\web\ErrorHandler;
 use craft\web\Response;
+use DateTimeInterface;
 use Exception;
 use putyourlightson\datastar\Datastar;
 use putyourlightson\datastar\helpers\Request;
@@ -21,6 +22,7 @@ use starfederation\datastar\events\PatchSignals;
 use starfederation\datastar\events\RemoveElements;
 use starfederation\datastar\ServerSentEventGenerator;
 use Throwable;
+use yii\web\Cookie;
 
 class SseService extends Component
 {
@@ -33,7 +35,7 @@ class SseService extends Component
      * Whether the session should be closed when the event stream begins.
      * This is useful to allow other requests to be processed while the event stream is being sent.
      */
-    private bool $shouldCloseSession = true;
+    private bool $shouldCloseSession = false;
 
     /**
      * Server sent events to send.
@@ -71,7 +73,9 @@ class SseService extends Component
             }
 
             echo $this->getEventOutput();
-            ob_flush();
+            if (ob_get_contents()) {
+                ob_flush();
+            }
             flush();
 
             if (is_callable($callable)) {
@@ -271,7 +275,7 @@ class SseService extends Component
     /**
      * Determines whether the session should be closed when the event stream begins.
      */
-    public function shouldCloseSession(bool $value): static
+    public function shouldCloseSession(bool $value = true): static
     {
         $this->shouldCloseSession = $value;
 
@@ -344,6 +348,8 @@ class SseService extends Component
         $this->sseEvents[] = $event;
 
         if ($this->isStreamedResponse) {
+            $this->resendHeadersAndCookies();
+
             // Clean and end all existing output buffers.
             while (ob_get_level() > 0) {
                 ob_end_clean();
@@ -361,6 +367,66 @@ class SseService extends Component
         }
 
         $this->setSseMethodInProcess(null);
+    }
+
+    /**
+     * Resends response headers and cookies that may have been set in processed events.
+     *
+     * @see Response::sendHeaders()
+     * @see Response::sendCookies()
+     */
+    private function resendHeadersAndCookies(): void
+    {
+        if (headers_sent()) {
+            return;
+        }
+
+        foreach (Craft::$app->getResponse()->getHeaders() as $name => $values) {
+            $name = str_replace(' ', '-', ucwords(str_replace('-', ' ', $name)));
+            $replace = true;
+            foreach ($values as $value) {
+                header("$name: $value", $replace);
+                $replace = false;
+            }
+        }
+
+        $validationKey = Craft::$app->getRequest()->cookieValidationKey;
+        foreach (Craft::$app->getResponse()->getCookies() as $cookie) {
+            $value = $cookie->value;
+            $expire = $cookie->expire;
+            if (is_string($expire)) {
+                $expire = strtotime($expire);
+            } elseif ($expire instanceof DateTimeInterface) {
+                $expire = $expire->getTimestamp();
+            }
+            if ($expire === null || $expire === false) {
+                $expire = 0;
+            }
+            if ($expire != 1) {
+                $value = Craft::$app->getSecurity()->hashData(serialize([$cookie->name, $value]), $validationKey);
+            }
+
+            setcookie($cookie->name, $value, [
+                'expires' => $expire,
+                'path' => $cookie->path,
+                'domain' => $cookie->domain,
+                'secure' => $cookie->secure,
+                'httpOnly' => $cookie->httpOnly,
+                'sameSite' => !empty($cookie->sameSite) ? $cookie->sameSite : null,
+            ]);
+        }
+
+        foreach (Craft::$app->getResponse()->getRawCookies() as $cookie) {
+            /** @var Cookie $cookie */
+            setcookie($cookie->name, $cookie->value, [
+                'expires' => $cookie->expire,
+                'path' => $cookie->path,
+                'domain' => $cookie->domain,
+                'secure' => $cookie->secure,
+                'httpOnly' => $cookie->httpOnly,
+                'sameSite' => !empty($cookie->sameSite) ? $cookie->sameSite : null,
+            ]);
+        }
     }
 
     /**
