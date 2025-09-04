@@ -35,7 +35,7 @@ class SseService extends Component
      * Whether the session should be closed when the event stream begins.
      * This is useful to allow other requests to be processed while the event stream is being sent.
      */
-    private bool $shouldCloseSession = false;
+    private bool $shouldCloseSession = true;
 
     /**
      * Server sent events to send.
@@ -275,7 +275,7 @@ class SseService extends Component
     /**
      * Determines whether the session should be closed when the event stream begins.
      */
-    public function shouldCloseSession(bool $value = true): static
+    public function shouldCloseSession(bool $value): static
     {
         $this->shouldCloseSession = $value;
 
