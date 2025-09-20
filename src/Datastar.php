@@ -67,8 +67,8 @@ class Datastar extends Module
 
         $this->registerComponents();
         $this->registerTwigExtension();
-        $this->registerSseDumper();
         $this->registerScript();
+        $this->registerSseDumper();
     }
 
     public function getSettings(): Settings
@@ -92,15 +92,6 @@ class Datastar extends Module
         Craft::$app->getView()->registerTwigExtension(new DatastarTwigExtension());
     }
 
-    private function registerSseDumper(): void
-    {
-        if (empty(Craft::$app->getRequest()->getHeaders()->get('Datastar-Request'))) {
-            return;
-        }
-
-        Craft::$app->set('dumper', new SseDumper());
-    }
-
     private function registerScript(): void
     {
         if (!$this->settings->registerScript) {
@@ -117,5 +108,15 @@ class Datastar extends Module
             $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
             Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
         });
+    }
+
+    private function registerSseDumper(): void
+    {
+        $request = Craft::$app->getRequest();
+        if ($request->getIsConsoleRequest() || empty($request->getHeaders()->get('Datastar-Request'))) {
+            return;
+        }
+
+        Craft::$app->set('dumper', new SseDumper());
     }
 }
