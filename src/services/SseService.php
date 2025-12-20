@@ -35,7 +35,7 @@ class SseService extends Component
      * Whether the session should be closed when the event stream begins.
      * This is useful to allow other requests to be processed while the event stream is being sent.
      */
-    private bool $shouldCloseSession = true;
+    private bool $shouldCloseSession = false;
 
     /**
      * Server sent events to send.
@@ -53,6 +53,13 @@ class SseService extends Component
      * The server sent event method currently in process.
      */
     private ?string $sseMethodInProcess = null;
+
+    public function init(): void
+    {
+        parent::init();
+
+        $this->shouldCloseSession = Datastar::getInstance()->settings->shouldCloseSession;
+    }
 
     /**
      * Returns an event stream.

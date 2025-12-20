@@ -7,7 +7,7 @@ use craft\web\AssetBundle;
 
 class DatastarAssetBundle extends AssetBundle
 {
-    public const VERSION = '1.0.0-RC.6';
+    public const VERSION = '1.0.0-RC.7';
 
     /**
      * @inheritdoc
