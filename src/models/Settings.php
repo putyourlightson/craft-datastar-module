@@ -18,7 +18,7 @@ class Settings extends Model
      * Whether the session should be closed when the event stream begins.
      * This is useful to allow other requests to be processed while the event stream is being sent.
      */
-    public bool $shouldCloseSession = false;
+    public bool $shouldCloseSession = true;
 
     /**
      * The name of the signals variable that will be injected into Datastar templates.
