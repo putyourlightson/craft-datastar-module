@@ -79,15 +79,15 @@ class SseService extends Component
                 session_write_close();
             }
 
-            if (is_callable($callable)) {
-                $callable();
-            }
-
             echo $this->getEventOutput();
             if (ob_get_contents()) {
                 ob_flush();
             }
             flush();
+
+            if (is_callable($callable)) {
+                $callable();
+            }
 
             // Return an array to prevent Yii from throwing an exception.
             return [];
