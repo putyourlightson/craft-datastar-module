@@ -12,7 +12,7 @@ First require the package in your plugin/module’s `composer.json` file.
 ```json
 {
   "require": {
-    "putyourlightson/craft-datastar-module": "^1.0.0-RC.1"
+    "putyourlightson/craft-datastar-module": "^1.0.0"
   }
 }
 ```
