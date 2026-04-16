@@ -61,7 +61,7 @@ This module requires [Craft CMS](https://craftcms.com/) 5.4.0 or later.
 Install this package via composer.
 
 ```shell
-composer require putyourlightson/craft-datastar-module:^1.0.0-RC.1
+composer require putyourlightson/craft-datastar-module:^1.0.0
 ```
 
 ---
