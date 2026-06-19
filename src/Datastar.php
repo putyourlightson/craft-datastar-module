@@ -98,16 +98,20 @@ class Datastar extends Module
             return;
         }
 
-        $bundle = Craft::$app->getView()->registerAssetBundle(DatastarAssetBundle::class);
+        try {
+            $bundle = Craft::$app->getView()->registerAssetBundle(DatastarAssetBundle::class);
 
-        /**
-         * Register the JS file explicitly so that it will be output when using template caching. We use the `EVENT_BEFORE_SEND` event so that the JS file is registered regardless of whether this is an error response or not.
-         * https://github.com/putyourlightson/craft-datastar/issues/20
-         */
-        Event::on(Response::class, Response::EVENT_BEFORE_SEND, function() use ($bundle) {
-            $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
-            Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
-        });
+            /**
+             * Register the JS file explicitly so that it will be output when using template caching. We use the `EVENT_BEFORE_SEND` event so that the JS file is registered regardless of whether this is an error response or not.
+             * https://github.com/putyourlightson/craft-datastar/issues/20
+             */
+            Event::on(Response::class, Response::EVENT_BEFORE_SEND, function() use ($bundle) {
+                $url = Craft::$app->getView()->getAssetManager()->getAssetUrl($bundle, $bundle->js[0]);
+                Craft::$app->getView()->registerJsFile($url, $bundle->jsOptions);
+            });
+        } catch (\Throwable $error) {
+            Craft::error('Failed to register Datastar script: ' . $error->getMessage(), __METHOD__);
+        }
     }
 
     private function registerSseDumper(): void
