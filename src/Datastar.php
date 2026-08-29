@@ -18,6 +18,8 @@ use yii\base\Module;
 /**
  * @property-read SseService $sse
  * @property-read Settings $settings
+ *
+ * @phpstan-consistent-constructor
  */
 class Datastar extends Module
 {
@@ -42,14 +44,15 @@ class Datastar extends Module
     /**
      * @inheritdoc
      */
-    public static function getInstance(): Datastar
+    public static function getInstance(): static
     {
-        if ($module = Craft::$app->getModule(self::ID)) {
-            /** @var Datastar $module */
+        $module = Craft::$app->getModule(self::ID);
+
+        if ($module instanceof static) {
             return $module;
         }
 
-        $module = new Datastar(self::ID);
+        $module = new static(self::ID);
         static::setInstance($module);
         Craft::$app->setModule(self::ID, $module);
 
