@@ -13,7 +13,8 @@
     "craftcms/ecs": "dev-main",
     "craftcms/phpstan": "dev-main",
     "markhuot/craft-pest-core": "^2.0.4",
-    "nystudio107/craft-autocomplete": "^1.12"
+    "nystudio107/craft-autocomplete": "^1.12",
+    "phpstan/phpstan": "^2.0"
   },
   "autoload": {
     "psr-4": {
