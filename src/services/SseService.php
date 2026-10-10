@@ -32,6 +32,11 @@ class SseService extends Component
     private bool $isStreamedResponse = false;
 
     /**
+     * Whether the event stream callback is currently running.
+     */
+    private bool $isSendingStream = false;
+
+    /**
      * Whether the session should be closed when the event stream begins.
      * This is useful to allow other requests to be processed while the event stream is being sent.
      */
@@ -75,18 +80,27 @@ class SseService extends Component
         $response = Craft::$app->getResponse();
 
         $response->stream = function() use ($callable) {
-            if ($this->shouldCloseSession && session_status() === PHP_SESSION_ACTIVE) {
-                session_write_close();
-            }
+            $this->isSendingStream = true;
 
-            echo $this->getEventOutput();
-            if (ob_get_contents()) {
-                ob_flush();
-            }
-            flush();
+            try {
+                if ($this->shouldCloseSession && session_status() === PHP_SESSION_ACTIVE) {
+                    session_write_close();
+                }
 
-            if (is_callable($callable)) {
-                $callable();
+                $output = $this->getEventOutput();
+                if ($output !== '') {
+                    echo $output;
+                    if (ob_get_contents()) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+
+                if (is_callable($callable)) {
+                    $callable();
+                }
+            } finally {
+                $this->isSendingStream = false;
             }
 
             // Return an array to prevent Yii from throwing an exception.
@@ -296,22 +310,26 @@ class SseService extends Component
      */
     public function throwException(Throwable $exception): void
     {
-        $this->getEventStream(function() use ($exception) {
-            /** @var ErrorHandler $errorHandler */
-            $errorHandler = Craft::$app->getErrorHandler();
-            $errorHandler->logException($exception);
+        /** @var ErrorHandler $errorHandler */
+        $errorHandler = Craft::$app->getErrorHandler();
+        $errorHandler->logException($exception);
 
-            if ($errorHandler->showExceptionDetails()) {
-                $event = new PatchElements($errorHandler->renderFile($errorHandler->exceptionView, [
-                    'exception' => $exception,
-                ]));
-            } else {
-                $message = Craft::t('app', 'A server error occurred.');
-                $event = new ExecuteScript('console.error(' . json_encode($message) . ');');
-            }
+        if ($errorHandler->showExceptionDetails()) {
+            $event = new PatchElements($errorHandler->renderFile($errorHandler->exceptionView, [
+                'exception' => $exception,
+            ]));
+        } else {
+            $message = Craft::t('app', 'A server error occurred.');
+            $event = new ExecuteScript('console.error(' . json_encode($message) . ');');
+        }
 
-            echo $event->getOutput();
-        })->send();
+        if ($this->isSendingStream || headers_sent()) {
+            $this->sendEvent($event);
+        } else {
+            $this->getEventStream(function() use ($event) {
+                $this->sendEvent($event);
+            })->send();
+        }
 
         exit(1);
     }
@@ -355,25 +373,33 @@ class SseService extends Component
         $this->sseEvents[] = $event;
 
         if ($this->isStreamedResponse) {
-            $this->resendHeadersAndCookies();
-
-            // Clean and end all existing output buffers.
-            while (ob_get_level() > 0) {
-                ob_end_clean();
-            }
-
-            echo $event->getOutput();
-
-            if (ob_get_contents()) {
-                ob_end_flush();
-            }
-            flush();
-
-            // Start a new output buffer to capture any subsequent inline content.
-            ob_start();
+            $this->sendEvent($event);
         }
 
         $this->setSseMethodInProcess(null);
+    }
+
+    /**
+     * Sends an event immediately, discarding any buffered inline content.
+     */
+    private function sendEvent(EventInterface $event): void
+    {
+        $this->resendHeadersAndCookies();
+
+        // Clean and end all existing output buffers.
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        echo $event->getOutput();
+
+        if (ob_get_contents()) {
+            ob_end_flush();
+        }
+        flush();
+
+        // Start a new output buffer to capture any subsequent inline content.
+        ob_start();
     }
 
     /**
